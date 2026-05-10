@@ -102,3 +102,21 @@
     justify-content: center;
   }
 }
+
+.sidebar__item--destaque {
+  background: linear-gradient(180deg, rgba(52,212,212,0.18), rgba(30,168,168,0.12));
+  border-color: rgba(52,212,212,0.3);
+  color: var(--fg);
+}
+.sidebar__item--destaque .sidebar__icon {
+  background: var(--accent);
+  color: #001;
+  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  font-weight: 800;
+}
+.sidebar__item--destaque.sidebar__item--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(52,212,212,0.15);
+}

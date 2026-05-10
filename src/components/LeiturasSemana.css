@@ -1,0 +1,177 @@
+.leit-semana {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.leit-semana__tabs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.leit-semana__tab {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.55rem 0.4rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  gap: 1px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.leit-semana__tab:hover {
+  border-color: var(--accent);
+}
+.leit-semana__tab--on {
+  background: rgba(52, 212, 212, 0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(52, 212, 212, 0.08);
+}
+.leit-semana__tab--hoje::after {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-top: 4px;
+}
+.leit-semana__dia-nome {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+}
+.leit-semana__dia-num {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--fg);
+  line-height: 1;
+}
+.leit-semana__dia-mes {
+  font-size: 0.65rem;
+  color: var(--fg-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.leit-semana__detalhe {
+  min-height: 160px;
+}
+
+.leit-semana__skeleton {
+  padding: 1.4rem;
+  background: var(--bg-app);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  text-align: center;
+  color: var(--fg-muted);
+}
+
+.leit-semana__erro {
+  background: rgba(184, 37, 43, 0.15);
+  border: 1px solid rgba(184, 37, 43, 0.4);
+  color: #ffb4b8;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+}
+
+.leit-semana__card {
+  --cor-bg: var(--liturgy-green);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--cor-bg) 14%, var(--bg-elev)),
+    var(--bg-elev)
+  );
+}
+.leit-semana__card.cor-vermelha { --cor-bg: var(--liturgy-red); }
+.leit-semana__card.cor-roxa     { --cor-bg: var(--liturgy-purple); }
+.leit-semana__card.cor-verde    { --cor-bg: var(--liturgy-green); }
+.leit-semana__card.cor-branca   { --cor-bg: var(--liturgy-white); }
+.leit-semana__card.cor-rosa     { --cor-bg: var(--liturgy-rose); }
+.leit-semana__card.cor-dourada  { --cor-bg: var(--gold); }
+
+.leit-semana__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.7rem;
+}
+.leit-semana__card-head h3 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: -0.005em;
+}
+.leit-semana__cor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+.leit-semana__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cor-bg);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.leit-semana__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+.leit-semana__item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.65rem;
+  min-width: 0;
+}
+.leit-semana__item--gold {
+  border-color: rgba(212, 164, 55, 0.4);
+  background: rgba(212, 164, 55, 0.08);
+}
+.leit-semana__rotulo {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+.leit-semana__item--gold .leit-semana__rotulo {
+  color: var(--gold);
+}
+.leit-semana__valor {
+  font-size: 0.85rem;
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 720px) {
+  .leit-semana__tabs {
+    grid-template-columns: repeat(7, 1fr);
+  }
+  .leit-semana__dia-nome {
+    font-size: 0.6rem;
+  }
+  .leit-semana__items {
+    grid-template-columns: 1fr;
+  }
+}

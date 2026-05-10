@@ -15,29 +15,39 @@ interface Props {
 }
 
 /**
- * Converte texto em parágrafos com destaque de respostas da assembleia.
- * Usa marcação `**...**` para chamar respostas.
+ * Sanitização básica do HTML do bloco antes de injetar no preview.
+ * Remove scripts/eventos. Para um sanitizador completo, usar DOMPurify quando
+ * o backend chegar — por enquanto isso já é suficiente para HTML do editor.
  */
-function renderizar(texto: string) {
-  const linhas = texto.split("\n");
-  return linhas.map((linha, i) => {
-    if (!linha.trim()) return <br key={i} />;
-    const partes = linha.split(/(\*\*[^*]+\*\*)/g);
-    return (
-      <p key={i} className="slide-preview__p">
-        {partes.map((p, j) => {
-          if (p.startsWith("**") && p.endsWith("**")) {
-            return (
-              <span key={j} className="slide-preview__resposta">
-                {p.slice(2, -2)}
-              </span>
-            );
-          }
-          return <span key={j}>{p}</span>;
-        })}
-      </p>
-    );
-  });
+function sanitizar(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/\son\w+=("[^"]*"|'[^']*'|\S+)/gi, "")
+    .replace(/javascript:/gi, "");
+}
+
+/**
+ * Converte marcação legada `**texto**` em <strong> para retrocompatibilidade
+ * com slides criados antes do editor HTML.
+ */
+function legadoParaHtml(texto: string): string {
+  if (texto.includes("<")) return texto; // já parece HTML
+  const escapado = texto
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const comResposta = escapado.replace(
+    /\*\*([^*]+)\*\*/g,
+    '<span class="rta-resposta">$1</span>',
+  );
+  return comResposta
+    .split(/\n/)
+    .map((l) => (l.trim() ? `<p>${l}</p>` : "<br/>"))
+    .join("");
+}
+
+function htmlDoBloco(texto: string): string {
+  return sanitizar(legadoParaHtml(texto));
 }
 
 const corMap: Record<CorLiturgicaSlug, string> = {
@@ -49,11 +59,6 @@ const corMap: Record<CorLiturgicaSlug, string> = {
   dourada: "#d4a437",
 };
 
-/**
- * Decide qual cor de banner usar para um bloco.
- * Por padrão, blocos de "ordinario" (Profissão de Fé etc.) usam o azul; demais
- * blocos do tema clássico usam o dourado. Pode ser ajustado por bloco.
- */
 function corBanner(tema: Tema, bloco: BlocoSlide): string {
   if (tema.estiloBanner === "ribbon-blue") {
     return tema.paleta.bannerBlue ?? tema.paleta.realce;
@@ -70,7 +75,6 @@ function corBanner(tema: Tema, bloco: BlocoSlide): string {
 function ehCapa(bloco: BlocoSlide) {
   return bloco.id === "abertura" || /sauda/i.test(bloco.titulo);
 }
-
 function ehEvangelho(bloco: BlocoSlide) {
   return bloco.id === "evangelho" || /evangelho/i.test(bloco.titulo);
 }
@@ -85,7 +89,8 @@ export function SlidePreview({
   variant = "card",
 }: Props) {
   const corHex = corMap[cor];
-  const usaBanner = tema.estiloBanner === "ribbon-gold" || tema.estiloBanner === "ribbon-blue";
+  const usaBanner =
+    tema.estiloBanner === "ribbon-gold" || tema.estiloBanner === "ribbon-blue";
   const corBannerHex = corBanner(tema, bloco);
   const evangelho = ehEvangelho(bloco);
   const capa = ehCapa(bloco);
@@ -103,10 +108,12 @@ export function SlidePreview({
 
   const titFamily = { fontFamily: tema.fonteTitulo };
 
-  /* --------------------- Layout: Capa (primeiro slide) --------------------- */
   if (capa && usaBanner) {
     return (
-      <div className={`slide-preview slide-preview--${variant} slide-preview--capa`} style={style}>
+      <div
+        className={`slide-preview slide-preview--${variant} slide-preview--capa`}
+        style={style}
+      >
         <div className="slide-preview__frame">
           <div className="slide-preview__capa-faixa" />
           <div className="slide-preview__bg" />
@@ -137,18 +144,26 @@ export function SlidePreview({
     );
   }
 
-  /* ---------------- Layout: Evangelho (full-bleed photo) ---------------- */
   if (evangelho && usaBanner && variant === "card") {
     return (
-      <div className={`slide-preview slide-preview--${variant} slide-preview--evangelho`} style={style}>
+      <div
+        className={`slide-preview slide-preview--${variant} slide-preview--evangelho`}
+        style={style}
+      >
         <div className="slide-preview__frame">
           <div className="slide-preview__evangelho-bg" />
           <div className="slide-preview__content slide-preview__content--evangelho">
-            <span className="slide-preview__evangelho-titulo" style={titFamily}>
+            <span
+              className="slide-preview__evangelho-titulo"
+              style={titFamily}
+            >
               Evangelho
             </span>
             {bloco.citacao && (
-              <span className="slide-preview__evangelho-citacao" style={titFamily}>
+              <span
+                className="slide-preview__evangelho-citacao"
+                style={titFamily}
+              >
                 {bloco.citacao}
               </span>
             )}
@@ -163,10 +178,12 @@ export function SlidePreview({
     );
   }
 
-  /* ----------------- Layout: Seção com banner (clássico) ----------------- */
   if (usaBanner) {
     return (
-      <div className={`slide-preview slide-preview--${variant} slide-preview--secao`} style={style}>
+      <div
+        className={`slide-preview slide-preview--${variant} slide-preview--secao`}
+        style={style}
+      >
         <div className="slide-preview__frame">
           <div className="slide-preview__bg" />
           <header className="slide-preview__ribbon" style={titFamily}>
@@ -179,9 +196,10 @@ export function SlidePreview({
             </span>
           </header>
           <div className="slide-preview__content slide-preview__content--secao">
-            <div className="slide-preview__corpo">
-              {renderizar(bloco.texto)}
-            </div>
+            <div
+              className="slide-preview__corpo"
+              dangerouslySetInnerHTML={{ __html: htmlDoBloco(bloco.texto) }}
+            />
           </div>
           {tema.rodape && (
             <div className="slide-preview__rodape-paroquia" style={titFamily}>
@@ -193,7 +211,6 @@ export function SlidePreview({
     );
   }
 
-  /* --------------- Layout: temas modernos (sem ribbon) --------------- */
   return (
     <div className={`slide-preview slide-preview--${variant}`} style={style}>
       <div className="slide-preview__frame" data-tema={tema.id}>
@@ -213,15 +230,18 @@ export function SlidePreview({
             {bloco.titulo}
           </h3>
           {variant === "card" && (
-            <div className="slide-preview__corpo">
-              {renderizar(bloco.texto)}
-            </div>
+            <div
+              className="slide-preview__corpo"
+              dangerouslySetInnerHTML={{ __html: htmlDoBloco(bloco.texto) }}
+            />
           )}
         </div>
 
         <div className="slide-preview__rodape" style={titFamily}>
           <span>{rotuloDia}</span>
-          {rotuloCor && <span className="slide-preview__cor-badge">{rotuloCor}</span>}
+          {rotuloCor && (
+            <span className="slide-preview__cor-badge">{rotuloCor}</span>
+          )}
         </div>
       </div>
     </div>

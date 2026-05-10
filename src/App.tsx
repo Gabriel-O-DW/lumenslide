@@ -7,12 +7,18 @@ import { MusicasView } from "./views/MusicasView";
 import { ExportarView } from "./views/ExportarView";
 import { CalendarioView } from "./views/CalendarioView";
 import { AjudaView } from "./views/AjudaView";
+import { NovoSlideView } from "./views/NovoSlideView";
 import { AppStateProvider } from "./state/AppState";
+import { AuthProvider, useAuth } from "./state/AuthState";
+import { AuthRouter } from "./views/auth/AuthRouter";
 import type { ViewKey } from "./types/nav";
 import "./App.css";
 
-export default function App() {
+function AppInterno() {
+  const { usuario } = useAuth();
   const [view, setView] = useState<ViewKey>("dashboard");
+
+  if (!usuario) return <AuthRouter />;
 
   return (
     <AppStateProvider>
@@ -23,6 +29,7 @@ export default function App() {
           <div className="app-content">
             {view === "dashboard" && <DashboardView onNavigate={setView} />}
             {view === "calendario" && <CalendarioView />}
+            {view === "novo-slide" && <NovoSlideView onNavigate={setView} />}
             {view === "editor" && <EditorView />}
             {view === "musicas" && <MusicasView />}
             {view === "exportar" && <ExportarView />}
@@ -31,5 +38,13 @@ export default function App() {
         </div>
       </div>
     </AppStateProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppInterno />
+    </AuthProvider>
   );
 }

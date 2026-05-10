@@ -1,0 +1,608 @@
+.novo-slide {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ----- Stepper ----- */
+.novo-slide__stepper {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow-x: auto;
+}
+.novo-slide__step-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  border-radius: 8px;
+}
+.novo-slide__step-btn:hover {
+  background: rgba(52, 212, 212, 0.06);
+}
+.novo-slide__step.is-ativo .novo-slide__step-btn {
+  background: rgba(52, 212, 212, 0.12);
+  border-color: rgba(52, 212, 212, 0.4);
+}
+.novo-slide__step.is-feito .novo-slide__step-num {
+  background: var(--accent);
+  color: #001;
+  border-color: var(--accent);
+}
+.novo-slide__step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--bg-elev);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.novo-slide__step-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.novo-slide__step-text strong {
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.novo-slide__step-text small {
+  display: none;
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+}
+
+@media (max-width: 1100px) {
+  .novo-slide__stepper {
+    grid-template-columns: repeat(4, minmax(140px, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .novo-slide__stepper {
+    grid-template-columns: repeat(3, minmax(120px, 1fr));
+  }
+}
+
+/* ----- Corpo (main + resumo) ----- */
+.novo-slide__corpo {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1rem;
+  align-items: stretch;
+}
+.novo-slide__main,
+.novo-slide__resumo {
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 1100px) {
+  .novo-slide__corpo {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- Resumo ----- */
+.novo-slide__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+.novo-slide__lista li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.novo-slide__num {
+  background: rgba(52, 212, 212, 0.12);
+  color: var(--accent);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.novo-slide__titulo {
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.novo-slide__rito {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+  letter-spacing: 0.06em;
+}
+.novo-slide__vazio {
+  text-align: center;
+  color: var(--fg-muted);
+  padding: 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: transparent !important;
+}
+
+/* ----- Cols (etapa eucarística) ----- */
+.novo-slide__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 980px) {
+  .novo-slide__cols { grid-template-columns: 1fr; }
+}
+
+/* ----- Passo Data ----- */
+.passo-data {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.2rem;
+}
+.passo-data__detalhe ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.92rem;
+}
+.passo-data__detalhe li {
+  padding: 0.45rem 0.7rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.passo-data__detalhe strong { color: var(--accent); margin-right: 6px; }
+.passo-data__cor[data-cor="vermelha"] { color: #ff8087; }
+.passo-data__cor[data-cor="branca"] { color: var(--gold); }
+.passo-data__cor[data-cor="roxa"] { color: #b78ad9; }
+.passo-data__cor[data-cor="rosa"] { color: var(--liturgy-rose); }
+.passo-data__cor[data-cor="verde"] { color: #5fc16f; }
+.passo-data__vazio {
+  color: var(--fg-muted);
+  padding: 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+@media (max-width: 980px) {
+  .passo-data { grid-template-columns: 1fr; }
+}
+
+/* ----- Passo Canto ----- */
+.passo-canto h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1rem;
+}
+.passo-canto__desc {
+  margin: 0 0 0.7rem;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+.passo-canto input[type="search"] {
+  width: 100%;
+  margin-bottom: 0.6rem;
+}
+.passo-canto__lista {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.passo-canto__item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.passo-canto__item--on {
+  border-color: var(--accent);
+  background: rgba(52, 212, 212, 0.08);
+}
+.passo-canto__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(52, 212, 212, 0.12);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+.passo-canto__body { display: flex; flex-direction: column; min-width: 0; }
+.passo-canto__body strong { font-size: 0.9rem; }
+.passo-canto__body small { color: var(--fg-muted); font-size: 0.72rem; }
+.passo-canto__chip {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  color: var(--fg-muted);
+  display: grid;
+  place-items: center;
+}
+.passo-canto__chip.on {
+  background: var(--accent);
+  color: #001;
+  border-color: var(--accent);
+}
+.passo-canto__vazio {
+  background: transparent;
+  border: 1px dashed var(--border);
+  color: var(--fg-muted);
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.passo-canto__previa {
+  background: rgba(212, 164, 55, 0.08);
+  border: 1px solid rgba(212, 164, 55, 0.3);
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+}
+.passo-canto__previa h4 {
+  margin: 0 0 0.4rem;
+  color: var(--gold);
+  font-size: 0.85rem;
+}
+.passo-canto__previa ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+  color: var(--fg);
+}
+.passo-canto__nota {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+
+/* ----- Passo Palavra ----- */
+.passo-palavra__intro {
+  margin: 0 0 0.85rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+.passo-palavra__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+.passo-palavra__card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+}
+.passo-palavra__card--vazio { opacity: 0.55; }
+.passo-palavra__card header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  gap: 0.4rem;
+}
+.passo-palavra__rotulo {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  font-weight: 700;
+}
+.passo-palavra__ref {
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.passo-palavra__card p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--fg);
+}
+@media (max-width: 720px) {
+  .passo-palavra__grid { grid-template-columns: 1fr; }
+}
+
+/* ----- Passo Avisos ----- */
+.passo-avisos__intro {
+  margin: 0 0 0.7rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+.passo-avisos__lista {
+  list-style: none;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.passo-avisos__item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.6rem;
+}
+.passo-avisos__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(212, 164, 55, 0.18);
+  color: var(--gold);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.78rem;
+  margin-top: 4px;
+}
+.passo-avisos__item textarea {
+  width: 100%;
+  resize: vertical;
+}
+.passo-avisos__del {
+  width: 28px;
+  height: 28px;
+  margin-top: 4px;
+  padding: 0;
+  background: rgba(184, 37, 43, 0.12);
+  border-color: rgba(184, 37, 43, 0.4);
+  color: #ffb4b8;
+}
+
+/* ----- Footer nav ----- */
+.novo-slide__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.novo-slide__progresso {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-app);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.novo-slide__progresso-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  transition: width 0.3s ease;
+}
+
+/* ----- Layout corpo: ajustado para preview ----- */
+.novo-slide__corpo {
+  display: grid;
+  grid-template-columns: 1fr 460px;
+  gap: 1rem;
+  align-items: stretch;
+}
+.novo-slide__main,
+.novo-slide__preview {
+  display: flex;
+  flex-direction: column;
+}
+.novo-slide__preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.novo-slide__editor-wrap {
+  width: 100%;
+}
+.novo-slide__hint {
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  margin: 0;
+}
+.novo-slide__preview-vazio {
+  padding: 2rem;
+  text-align: center;
+  color: var(--fg-muted);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+.novo-slide__toolbar-wrap {
+  /* O CanvasLivre standalone aqui mostra só toolbar — palco fica vazio.
+     Esconde o palco para evitar área dupla. */
+}
+.novo-slide__toolbar-wrap .canvas-livre__palco {
+  display: none;
+}
+
+/* ----- Slides do passo (chips) ----- */
+.novo-slide__slides-passo {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px dashed var(--border);
+}
+.novo-slide__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.novo-slide__chip-slide {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  text-align: left;
+}
+.novo-slide__chip-slide .num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-app);
+  display: grid;
+  place-items: center;
+  font-size: 0.66rem;
+  color: var(--accent);
+}
+.novo-slide__chip-slide--on {
+  border-color: var(--accent);
+  background: rgba(52, 212, 212, 0.12);
+  color: var(--fg);
+}
+.novo-slide__chip-slide--on .num {
+  background: var(--accent);
+  color: #001;
+}
+
+/* ----- Passo 6 - Revisão ----- */
+.passo-revisao__intro {
+  margin: 0 0 0.85rem;
+  color: var(--fg-muted);
+  font-size: 0.92rem;
+}
+.passo-revisao__grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+.passo-revisao__item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.passo-revisao__item.is-ativo {
+  border-color: var(--accent);
+  background: rgba(52, 212, 212, 0.1);
+  box-shadow: 0 0 0 2px rgba(52, 212, 212, 0.1);
+}
+.passo-revisao__num {
+  background: rgba(52, 212, 212, 0.12);
+  color: var(--accent);
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.passo-revisao__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.passo-revisao__body strong {
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.passo-revisao__body small {
+  font-size: 0.7rem;
+  color: var(--fg-muted);
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+.passo-revisao__livre {
+  background: rgba(212, 164, 55, 0.18);
+  color: var(--gold);
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.passo-revisao__check {
+  color: var(--accent);
+  font-size: 1rem;
+}
+.passo-revisao__vazio {
+  padding: 1.4rem;
+  text-align: center;
+  color: var(--fg-muted);
+  background: var(--bg-app);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  grid-column: 1 / -1;
+}
+
+/* ----- Salvar ----- */
+.novo-slide__salvar {
+  letter-spacing: 0.02em;
+}
+.novo-slide__feedback {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--accent);
+  color: var(--fg);
+  padding: 0.85rem 1.1rem;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  font-size: 0.92rem;
+  z-index: 50;
+}
+
+@media (max-width: 1180px) {
+  .novo-slide__corpo {
+    grid-template-columns: 1fr;
+  }
+}

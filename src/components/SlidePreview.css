@@ -274,3 +274,26 @@
 .slide-preview--thumb .slide-preview__capa-faixa {
   width: 22%;
 }
+
+/* Marcadores vindos do RichTextEditor */
+.slide-preview__corpo .rta-resposta {
+  background: color-mix(in srgb, var(--slide-realce) 35%, transparent);
+  color: var(--slide-fg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+.slide-preview--secao .slide-preview__corpo .rta-resposta {
+  background: color-mix(in srgb, var(--slide-banner) 28%, transparent);
+  font-weight: 800;
+}
+
+.slide-preview__corpo p {
+  margin: 0.3rem 0;
+}
+.slide-preview__corpo ul,
+.slide-preview__corpo ol {
+  text-align: left;
+  margin: 0.4rem 0;
+  padding-left: 1.4rem;
+}

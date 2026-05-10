@@ -1,9 +1,8 @@
 import { useAppState } from "../state/AppState";
 import { Calendario } from "../components/Calendario";
-import { GraficoBarras } from "../components/GraficoBarras";
+import { LeiturasSemana } from "../components/LeiturasSemana";
 import { CardDia } from "../components/CardDia";
 import { AcoesRapidas } from "../components/AcoesRapidas";
-import { MusicasRecentes } from "../components/MusicasRecentes";
 import type { ViewKey } from "../types/nav";
 import "./DashboardView.css";
 
@@ -17,34 +16,18 @@ export function DashboardView({ onNavigate }: Props) {
   return (
     <div className="dashboard">
       <div className="dashboard__grid">
-        <section className="card dashboard__chart">
+        <section className="card dashboard__semana">
           <div className="card-header">
             <div>
-              <h2 className="card-title">Apresentações por mês</h2>
-              <p className="card-subtitle">Histórico — últimos 12 meses</p>
+              <h2 className="card-title">Leituras da semana</h2>
+              <p className="card-subtitle">
+                Selecione um dia para preparar a celebração
+              </p>
             </div>
-            <span className="chip">Visão anual</span>
+            <span className="chip">Seg → Dom</span>
           </div>
           <div className="card-body">
-            <GraficoBarras
-              data={[
-                42, 58, 71, 95, 110, 120, 88, 76, 95, 132, 118, 128,
-              ]}
-              labels={[
-                "Jan",
-                "Fev",
-                "Mar",
-                "Abr",
-                "Mai",
-                "Jun",
-                "Jul",
-                "Ago",
-                "Set",
-                "Out",
-                "Nov",
-                "Dez",
-              ]}
-            />
+            <LeiturasSemana />
           </div>
         </section>
 
@@ -54,10 +37,7 @@ export function DashboardView({ onNavigate }: Props) {
             <span className="chip chip--gold">Selecionar data</span>
           </div>
           <div className="card-body">
-            <Calendario
-              valor={dataSelecionada}
-              onChange={setDataSelecionada}
-            />
+            <Calendario valor={dataSelecionada} onChange={setDataSelecionada} />
           </div>
         </section>
 
@@ -71,18 +51,6 @@ export function DashboardView({ onNavigate }: Props) {
           </div>
           <div className="card-body">
             <AcoesRapidas onNavigate={onNavigate} />
-          </div>
-        </section>
-
-        <section className="card dashboard__songs">
-          <div className="card-header">
-            <h2 className="card-title">Músicas Recentes</h2>
-            <button className="ghost" onClick={() => onNavigate("musicas")}>
-              Ver todas
-            </button>
-          </div>
-          <div className="card-body">
-            <MusicasRecentes />
           </div>
         </section>
       </div>

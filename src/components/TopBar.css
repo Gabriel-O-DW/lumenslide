@@ -93,3 +93,94 @@
     grid-row: 2;
   }
 }
+
+/* === Menu de usuário === */
+.topbar__user-wrap {
+  position: relative;
+}
+.topbar__user {
+  cursor: pointer;
+}
+.topbar__user-name {
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 240px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  z-index: 20;
+}
+.topbar__menu-head {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.3rem;
+  gap: 0.1rem;
+}
+.topbar__menu-head strong {
+  font-size: 0.92rem;
+}
+.topbar__menu-head small {
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar__menu-paroquia {
+  margin-top: 0.2rem;
+  color: var(--accent) !important;
+}
+.topbar__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--fg);
+}
+.topbar__menu-item:hover:not(:disabled) {
+  background: rgba(52, 212, 212, 0.08);
+}
+.topbar__menu-item:disabled {
+  color: var(--fg-dim);
+  cursor: not-allowed;
+}
+.topbar__menu-item span {
+  width: 20px;
+  display: inline-grid;
+  place-items: center;
+  color: var(--accent);
+}
+.topbar__menu-item--danger {
+  color: #ff8087;
+}
+.topbar__menu-item--danger span {
+  color: #ff8087;
+}
+.topbar__menu-item--danger:hover:not(:disabled) {
+  background: rgba(184, 37, 43, 0.12);
+}
+.topbar__menu-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 0.25rem 0;
+}

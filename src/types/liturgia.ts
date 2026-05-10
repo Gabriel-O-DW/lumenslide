@@ -1,8 +1,3 @@
-/**
- * Tipos normalizados da liturgia diária.
- * A API original (api-liturgia-diaria.vercel.app) pode mudar de schema, então
- * aplicamos um normalizador defensivo em src/services/liturgia.ts.
- */
 export type CorLiturgicaSlug =
   | "branca"
   | "verde"
@@ -15,6 +10,12 @@ export interface LeituraNormalizada {
   titulo: string;
   referencia?: string;
   texto: string;
+  /** Chamada antes do texto (ex.: "Leitura dos Atos dos Apóstolos:") */
+  chamada?: string;
+  chamadaResposta?: string;
+  /** Rodapé da leitura (ex.: "Palavra do Senhor") */
+  rodape?: string;
+  rodapeResposta?: string;
 }
 
 export interface SalmoNormalizado {
@@ -25,10 +26,10 @@ export interface SalmoNormalizado {
 }
 
 export interface LiturgiaDiaria {
-  data: string; // ISO yyyy-mm-dd
-  diaLiturgico?: string; // ex.: "Solenidade de Cristo Rei"
+  data: string;
+  diaLiturgico?: string;
   cor: CorLiturgicaSlug;
-  corRotulo: string; // ex.: "Vermelho"
+  corRotulo: string;
   primeiraLeitura?: LeituraNormalizada;
   salmo?: SalmoNormalizado;
   segundaLeitura?: LeituraNormalizada;
