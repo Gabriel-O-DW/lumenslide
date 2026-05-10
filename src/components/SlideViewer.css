@@ -1,0 +1,111 @@
+.slide-viewer {
+  width: 100%;
+  max-width: var(--max-w);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.slide-viewer--full {
+  max-width: none;
+  width: 100vw;
+  height: 100vh;
+  padding: 2rem 3rem;
+  background: #0d0a06;
+  color: #f4ece0;
+  position: relative;
+}
+
+.slide-stage {
+  background: var(--color-bg-elev);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 3rem 2.5rem;
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.slide-viewer--full .slide-stage {
+  flex: 1;
+  background: #1a1510;
+  border-color: #3a3122;
+  font-size: 1.4rem;
+}
+
+/* Faixa colorida indicando a cor litúrgica */
+.slide-stage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+.slide-viewer[data-cor="branco"] .slide-stage::before {
+  background: var(--color-liturgy-gold);
+}
+.slide-viewer[data-cor="verde"] .slide-stage::before {
+  background: var(--color-liturgy-green);
+}
+.slide-viewer[data-cor="roxo"] .slide-stage::before {
+  background: var(--color-liturgy-purple);
+}
+.slide-viewer[data-cor="vermelho"] .slide-stage::before {
+  background: var(--color-liturgy-red);
+}
+.slide-viewer[data-cor="rosa"] .slide-stage::before {
+  background: #d97aa3;
+}
+.slide-viewer[data-cor="dourado"] .slide-stage::before {
+  background: var(--color-liturgy-gold);
+}
+
+.slide-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.slide-counter {
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+.slide-viewer--full .slide-controls {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.slide-viewer--full:hover .slide-controls,
+.slide-viewer--full:focus-within .slide-controls {
+  opacity: 1;
+}
+
+.slide-exit {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border-color: transparent;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.slide-viewer-empty {
+  color: var(--color-fg-muted);
+}

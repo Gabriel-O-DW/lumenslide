@@ -1,0 +1,43 @@
+{
+  "name": "lumenslide",
+  "private": false,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Criação dinâmica de slides para a Santa Missa.",
+  "license": "MIT",
+  "homepage": "https://github.com/SEU-USUARIO/lumenslide#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SEU-USUARIO/lumenslide.git"
+  },
+  "bugs": {
+    "url": "https://github.com/SEU-USUARIO/lumenslide/issues"
+  },
+  "keywords": [
+    "santa-missa",
+    "liturgia",
+    "slides",
+    "presentation",
+    "catholic",
+    "react",
+    "vite",
+    "typescript"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
