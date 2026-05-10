@@ -1,0 +1,31 @@
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1.1rem;
+}
+
+.dashboard__chart {
+  grid-column: span 6;
+}
+.dashboard__cal {
+  grid-column: span 3;
+}
+.dashboard__actions {
+  grid-column: span 3;
+}
+.dashboard__day {
+  grid-column: span 8;
+}
+.dashboard__songs {
+  grid-column: span 4;
+}
+
+@media (max-width: 1100px) {
+  .dashboard__chart,
+  .dashboard__cal,
+  .dashboard__actions,
+  .dashboard__day,
+  .dashboard__songs {
+    grid-column: span 12;
+  }
+}

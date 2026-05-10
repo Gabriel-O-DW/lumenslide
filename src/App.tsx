@@ -1,71 +1,35 @@
 import { useState } from "react";
-import { SlideViewer } from "./components/SlideViewer";
-import { SlideList } from "./components/SlideList";
-import { celebracaoExemplo } from "./data/exemplo";
-import type { Slide } from "./types/slide";
+import { Sidebar } from "./components/Sidebar";
+import { TopBar } from "./components/TopBar";
+import { DashboardView } from "./views/DashboardView";
+import { EditorView } from "./views/EditorView";
+import { MusicasView } from "./views/MusicasView";
+import { ExportarView } from "./views/ExportarView";
+import { CalendarioView } from "./views/CalendarioView";
+import { AjudaView } from "./views/AjudaView";
+import { AppStateProvider } from "./state/AppState";
+import type { ViewKey } from "./types/nav";
 import "./App.css";
 
 export default function App() {
-  const [slides] = useState<Slide[]>(celebracaoExemplo);
-  const [indice, setIndice] = useState(0);
-  const [modoApresentacao, setModoApresentacao] = useState(false);
+  const [view, setView] = useState<ViewKey>("dashboard");
 
   return (
-    <div className="app">
-      {!modoApresentacao && (
-        <header className="app-header">
-          <div className="brand">
-            <img src="/lumen.svg" alt="" width={28} height={28} />
-            <h1>LumenSlide</h1>
-            <span className="tag">v0.1 · MVP</span>
+    <AppStateProvider>
+      <div className="app-shell">
+        <Sidebar active={view} onChange={setView} />
+        <div className="app-main">
+          <TopBar view={view} />
+          <div className="app-content">
+            {view === "dashboard" && <DashboardView onNavigate={setView} />}
+            {view === "calendario" && <CalendarioView />}
+            {view === "editor" && <EditorView />}
+            {view === "musicas" && <MusicasView />}
+            {view === "exportar" && <ExportarView />}
+            {view === "ajuda" && <AjudaView />}
           </div>
-          <div className="header-actions">
-            <button
-              className="primary"
-              onClick={() => setModoApresentacao(true)}
-            >
-              ▶ Apresentar
-            </button>
-          </div>
-        </header>
-      )}
-
-      <main className={modoApresentacao ? "main main--full" : "main"}>
-        {!modoApresentacao && (
-          <aside className="sidebar">
-            <SlideList
-              slides={slides}
-              indiceAtivo={indice}
-              onSelecionar={setIndice}
-            />
-          </aside>
-        )}
-
-        <section className="viewer">
-          <SlideViewer
-            slides={slides}
-            indice={indice}
-            onMudarIndice={setIndice}
-            modoApresentacao={modoApresentacao}
-            onSair={() => setModoApresentacao(false)}
-          />
-        </section>
-      </main>
-
-      {!modoApresentacao && (
-        <footer className="app-footer">
-          <small>
-            ✨ <strong>LumenSlide</strong> — projeto aberto MIT ·{" "}
-            <a
-              href="https://github.com/SEU-USUARIO/lumenslide"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Contribua no GitHub
-            </a>
-          </small>
-        </footer>
-      )}
-    </div>
+        </div>
+      </div>
+    </AppStateProvider>
   );
 }

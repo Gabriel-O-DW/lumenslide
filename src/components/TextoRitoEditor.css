@@ -1,0 +1,52 @@
+.rito-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  flex: 1;
+}
+.rito-editor__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.rito-editor__row label {
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.rito-editor textarea {
+  flex: 1;
+  resize: vertical;
+  min-height: 240px;
+  font-family: "Iowan Old Style", Georgia, serif;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.rito-editor__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rito-editor__toolbar .ghost {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+.rito-editor__hint {
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  margin-right: auto;
+}
+.rito-editor__hint code {
+  background: rgba(52, 212, 212, 0.12);
+  color: var(--accent);
+  padding: 1px 6px;
+  border-radius: 4px;
+}

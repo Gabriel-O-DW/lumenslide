@@ -1,0 +1,124 @@
+.slide-preview {
+  width: 100%;
+}
+.slide-preview--card .slide-preview__frame {
+  aspect-ratio: 16 / 9;
+}
+.slide-preview--thumb .slide-preview__frame {
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  font-size: 8px;
+}
+
+.slide-preview__frame {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--slide-bg);
+  color: var(--slide-fg);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.slide-preview__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      color-mix(in srgb, var(--slide-cor) 35%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      color-mix(in srgb, var(--slide-realce) 25%, transparent),
+      transparent 60%
+    ),
+    var(--slide-bg2);
+}
+
+.slide-preview__faixa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 6px;
+  background: var(--slide-cor);
+}
+
+.slide-preview__cross {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(1.4rem, 4vw, 2.6rem);
+  color: var(--slide-realce);
+  opacity: 0.85;
+}
+
+.slide-preview__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 8% 8% 12%;
+  gap: 0.45rem;
+}
+
+.slide-preview__citacao {
+  font-style: italic;
+  color: var(--slide-realce);
+  font-size: clamp(0.7rem, 1.4vw, 1rem);
+  letter-spacing: 0.02em;
+}
+
+.slide-preview__titulo {
+  font-size: clamp(1rem, 3vw, 2rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+}
+
+.slide-preview__corpo {
+  font-size: clamp(0.7rem, 1.4vw, 1rem);
+  line-height: 1.5;
+  max-height: 55%;
+  overflow: hidden;
+}
+.slide-preview__p {
+  margin: 0.25rem 0;
+}
+.slide-preview__resposta {
+  background: color-mix(in srgb, var(--slide-realce) 35%, transparent);
+  color: var(--slide-fg);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.slide-preview__rodape {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+  color: color-mix(in srgb, var(--slide-fg) 75%, transparent);
+}
+.slide-preview__cor-badge {
+  background: var(--slide-cor);
+  color: #fff;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.7em;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

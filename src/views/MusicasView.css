@@ -1,0 +1,25 @@
+.musicas-view {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.1rem;
+  align-items: stretch;
+}
+.musicas-view__lista,
+.musicas-view__temas {
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+}
+.musicas-view__lista .card-body,
+.musicas-view__temas .card-body {
+  flex: 1;
+}
+
+@media (max-width: 980px) {
+  .musicas-view {
+    grid-template-columns: 1fr;
+  }
+  .musicas-view__lista {
+    min-height: 0;
+  }
+}
