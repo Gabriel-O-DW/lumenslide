@@ -27,6 +27,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "preview:liturgia": "vite build --mode preview && vite preview",
     "lint": "tsc --noEmit"
   },
   "dependencies": {

@@ -15,8 +15,6 @@ export function EditorView() {
   const [blocos, setBlocos] = useState<BlocoSlide[]>(() => blocosIniciaisDoRito());
   const [slideAtivoId, setSlideAtivoId] = useState<string>(blocos[0]?.id ?? "");
 
-  // Quando a liturgia chega da API, sincronizamos automaticamente os blocos
-  // de leitura/salmo/evangelho com os textos retornados.
   useEffect(() => {
     if (!liturgia) return;
     setBlocos((prev) =>
@@ -65,7 +63,6 @@ export function EditorView() {
     [blocos, rito],
   );
 
-  // Garante que o slide ativo pertence ao rito atual
   useEffect(() => {
     if (blocosDoRito.length === 0) return;
     if (!blocosDoRito.find((b) => b.id === slideAtivoId)) {
@@ -80,6 +77,35 @@ export function EditorView() {
       prev.map((b) => (b.id === id ? { ...b, ...patch } : b)),
     );
   };
+
+  const leiturasResumo = [
+    {
+      rotulo: "1ª Leitura",
+      valor:
+        liturgia?.primeiraLeitura?.referencia ??
+        liturgia?.primeiraLeitura?.titulo ??
+        "—",
+    },
+    {
+      rotulo: "Salmo",
+      valor:
+        liturgia?.salmo?.referencia ?? liturgia?.salmo?.titulo ?? "—",
+    },
+    {
+      rotulo: "2ª Leitura",
+      valor:
+        liturgia?.segundaLeitura?.referencia ??
+        liturgia?.segundaLeitura?.titulo ??
+        "—",
+    },
+    {
+      rotulo: "Evangelho",
+      valor:
+        liturgia?.evangelho?.referencia ??
+        liturgia?.evangelho?.titulo ??
+        "—",
+    },
+  ];
 
   return (
     <div className="editor-view">
@@ -99,9 +125,7 @@ export function EditorView() {
                     type="button"
                     className={
                       "lista-slides__item" +
-                      (b.id === slideAtivoId
-                        ? " lista-slides__item--on"
-                        : "")
+                      (b.id === slideAtivoId ? " lista-slides__item--on" : "")
                     }
                     onClick={() => setSlideAtivoId(b.id)}
                   >
@@ -164,12 +188,13 @@ export function EditorView() {
                 cor={liturgia?.cor ?? "verde"}
                 rotuloDia={liturgia?.diaLiturgico ?? slideAtivo.titulo}
                 rotuloCor={liturgia?.corRotulo ?? ""}
+                leituras={leiturasResumo}
               />
             )}
             <p className="hint">
-              Toggle <strong>Design Automatizado</strong> e{" "}
-              <strong>Cor do Slide</strong> sincronizam-se automaticamente com a
-              cor litúrgica retornada pela API.
+              <strong>Design Automatizado</strong> e{" "}
+              <strong>Cor do Slide</strong> sincronizam com a cor litúrgica
+              da API.
             </p>
           </div>
         </section>

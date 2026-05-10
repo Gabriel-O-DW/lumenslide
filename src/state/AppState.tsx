@@ -27,6 +27,9 @@ interface AppState {
   setTemaAtivo: (t: Tema) => void;
   temas: Tema[];
 
+  paroquia: string;
+  setParoquia: (nome: string) => void;
+
   musicas: Musica[];
   musicasSelecionadas: string[];
   alternarMusica: (id: string) => void;
@@ -54,11 +57,19 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
 
-  const [temaAtivo, setTemaAtivo] = useState<Tema>(temasDisponiveis[0]);
+  const [temaAtivo, setTemaAtivoBase] = useState<Tema>(temasDisponiveis[0]);
+  const [paroquia, setParoquia] = useState<string>(
+    temasDisponiveis[0].rodape ?? "",
+  );
   const [musicasSelecionadas, setMusicasSelecionadas] = useState<string[]>([
     musicasMock[0].id,
     musicasMock[1].id,
   ]);
+
+  const setTemaAtivo = useCallback(
+    (t: Tema) => setTemaAtivoBase({ ...t }),
+    [],
+  );
 
   const [composicao, setComposicao] = useState({
     leituras: true,
@@ -102,6 +113,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const temaAtivoComRodape = useMemo<Tema>(
+    () => ({ ...temaAtivo, rodape: paroquia }),
+    [temaAtivo, paroquia],
+  );
+
   const value = useMemo<AppState>(
     () => ({
       dataSelecionada,
@@ -110,9 +126,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       carregando,
       erro,
       recarregar: () => carregar(dataSelecionada),
-      temaAtivo,
+      temaAtivo: temaAtivoComRodape,
       setTemaAtivo,
       temas: temasDisponiveis,
+      paroquia,
+      setParoquia,
       musicas: musicasMock,
       musicasSelecionadas,
       alternarMusica,
@@ -125,7 +143,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       carregando,
       erro,
       carregar,
-      temaAtivo,
+      temaAtivoComRodape,
+      setTemaAtivo,
+      paroquia,
       musicasSelecionadas,
       alternarMusica,
       composicao,

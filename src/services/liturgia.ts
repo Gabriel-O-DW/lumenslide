@@ -5,19 +5,18 @@ import type {
   SalmoNormalizado,
 } from "../types/liturgia";
 
-const API_BASE = "https://api-liturgia-diaria.vercel.app";
-
 /**
- * Permite usar um proxy de CORS configurável via variável de ambiente,
- * sem quebrar quando rodando em ambientes onde a API responde direto.
- *
- * Em dev, o app pode rodar sem proxy. Se a API bloquear CORS no domínio do
- * usuário, basta exportar VITE_LITURGIA_PROXY="https://seu-proxy/..." e a URL
- * final será `${VITE_LITURGIA_PROXY}${API_BASE}/...`.
+ * Em dev, usamos o proxy do Vite (/api-liturgia → API_BASE) para evitar CORS.
+ * Em produção, fazemos chamada direta. Pode ser ajustado por env.
  */
+const API_BASE = "https://api-liturgia-diaria.vercel.app";
+const DEV_PREFIX = "/api-liturgia";
+
 function endpoint(path: string): string {
   const proxy = (import.meta.env.VITE_LITURGIA_PROXY as string | undefined) ?? "";
-  return `${proxy}${API_BASE}${path}`;
+  if (proxy) return `${proxy}${API_BASE}${path}`;
+  if (import.meta.env.DEV) return `${DEV_PREFIX}${path}`;
+  return `${API_BASE}${path}`;
 }
 
 export async function buscarLiturgia(dataIso: string): Promise<LiturgiaDiaria> {
@@ -28,10 +27,6 @@ export async function buscarLiturgia(dataIso: string): Promise<LiturgiaDiaria> {
   const raw = await res.json();
   return normalizar(raw, dataIso);
 }
-
-/* ------------------------------------------------------------------ */
-/*  Normalização defensiva                                            */
-/* ------------------------------------------------------------------ */
 
 function pickString(obj: unknown, keys: string[]): string | undefined {
   if (!obj || typeof obj !== "object") return undefined;
@@ -59,7 +54,6 @@ function corDoCorpo(raw: unknown): {
   const rotulo =
     pickString(raw, ["cor", "corLiturgica", "color", "liturgicalColor"]) ??
     "Verde";
-
   const lower = rotulo.toLowerCase();
   if (lower.includes("verm")) return { slug: "vermelha", rotulo: "Vermelho" };
   if (lower.includes("roxo") || lower.includes("violeta") || lower.includes("roxa"))
@@ -127,8 +121,7 @@ export function normalizar(raw: unknown, fallbackData: string): LiturgiaDiaria {
 
   const { slug, rotulo } = corDoCorpo(dados);
 
-  const data =
-    pickString(dados, ["dia", "data", "date"]) ?? fallbackData;
+  const data = pickString(dados, ["dia", "data", "date"]) ?? fallbackData;
   const diaLiturgico = pickString(dados, [
     "liturgia",
     "diaLiturgico",

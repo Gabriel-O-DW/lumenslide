@@ -9,5 +9,16 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true,
+    proxy: {
+      // Mesma origem no browser → sem CORS. O preview server reusa esta config.
+      "/api-liturgia": {
+        target: "https://api-liturgia-diaria.vercel.app",
+        changeOrigin: true,
+        rewrite: (p) => {
+          const stripped = p.replace(/^\/api-liturgia/, "");
+          return stripped === "" ? "/" : stripped;
+        },
+      },
+    },
   },
 });

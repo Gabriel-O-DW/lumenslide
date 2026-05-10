@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api-liturgia",
+      "destination": "https://api-liturgia-diaria.vercel.app/"
+    },
+    {
+      "source": "/api-liturgia/",
+      "destination": "https://api-liturgia-diaria.vercel.app/"
+    }
+  ]
+}
