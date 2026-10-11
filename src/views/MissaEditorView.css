@@ -1,0 +1,137 @@
+.missa-editor {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.missa-editor__vazio {
+  height: 100%;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 1rem;
+  color: var(--fg-muted);
+}
+
+/* Barra superior */
+.missa-editor__barra {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+.missa-editor__titulo { display: flex; align-items: center; gap: 0.75rem; min-width: 0; flex: 1; }
+.missa-editor__titulo strong { display: block; font-size: 1.02rem; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+.missa-editor__titulo small { display: block; color: var(--fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.missa-editor__cor { width: 14px; height: 14px; border-radius: 50%; flex: none; box-shadow: 0 0 0 2px var(--bg-panel), 0 0 0 3px var(--border-strong); }
+.missa-editor__status { font-size: 0.8rem; color: var(--fg-muted); white-space: nowrap; }
+.missa-editor__status--salvo { color: #6fd39a; }
+.missa-editor__status--erro { color: #ff9aa0; }
+.missa-editor__baixar { padding: 0.65rem 1.2rem; white-space: nowrap; min-width: 150px; }
+.missa-editor__erro { margin: 0.6rem 1.25rem 0; }
+
+/* Três colunas: miniaturas | slide | ajustes */
+.missa-editor__corpo {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 212px minmax(0, 1fr) 360px;
+}
+
+.missa-editor__miniaturas {
+  overflow-y: auto;
+  padding: 0.75rem 0.9rem 2rem 0.6rem;
+  border-right: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+.missa-editor__secao {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-dim);
+  margin: 0.9rem 0 0.35rem 1.6rem;
+  font-weight: 600;
+}
+.missa-editor__miniatura {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.2rem;
+  margin-bottom: 0.35rem;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+}
+.missa-editor__miniatura:hover:not(:disabled) { background: rgba(255, 255, 255, 0.04); }
+.missa-editor__numero { width: 1.3rem; text-align: right; font-size: 0.68rem; color: var(--fg-dim); padding-top: 0.15rem; font-variant-numeric: tabular-nums; flex: none; }
+.missa-editor__miniatura .slide-canvas { border-radius: 3px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08); }
+.missa-editor__miniatura--ativa .slide-canvas,
+.missa-editor__miniatura--ativa .missa-editor__branco { box-shadow: 0 0 0 2px var(--accent); }
+.missa-editor__miniatura--ativa .missa-editor__numero { color: var(--accent); font-weight: 700; }
+.missa-editor__branco {
+  width: 172px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  font-size: 0.66rem;
+  color: #8b93a6;
+  background: #fff;
+  border-radius: 3px;
+  opacity: 0.55;
+}
+.missa-editor__miniatura--branco { margin-bottom: 0.2rem; }
+
+/* Palco central */
+.missa-editor__palco {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1.75rem 1rem;
+  gap: 1rem;
+}
+.missa-editor__palco-area {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+.missa-editor__slide .slide-canvas {
+  border-radius: 6px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.missa-editor__ferramentas {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+.missa-editor__nav { display: flex; align-items: center; gap: 0.6rem; font-size: 0.85rem; color: var(--fg-muted); }
+.missa-editor__nav strong { color: var(--fg); }
+.missa-editor__nav button { width: 32px; height: 32px; padding: 0; font-size: 1.1rem; }
+.missa-editor__acoes { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; align-items: center; }
+.missa-editor__fonte { display: flex; align-items: center; gap: 0.25rem; border: 1px solid var(--border); border-radius: 8px; padding: 2px; }
+.missa-editor__fonte button { border: 0; background: transparent; padding: 0.3rem 0.55rem; font-weight: 600; }
+.missa-editor__fonte span { font-size: 0.78rem; color: var(--fg-muted); min-width: 2.8rem; text-align: center; font-variant-numeric: tabular-nums; }
+.missa-editor__dica { grid-column: 1 / -1; margin: 0; font-size: 0.75rem; color: var(--fg-dim); text-align: center; }
+
+.missa-editor__ajustes {
+  overflow-y: auto;
+  border-left: 1px solid var(--border);
+  background: var(--bg-panel);
+}
+
+@media (max-width: 1280px) {
+  .missa-editor__corpo { grid-template-columns: 196px minmax(0, 1fr) 320px; }
+}
+
+@media (max-width: 1024px) {
+  .missa-editor__corpo { grid-template-columns: minmax(0, 1fr) 320px; }
+  .missa-editor__miniaturas { display: none; }
+}

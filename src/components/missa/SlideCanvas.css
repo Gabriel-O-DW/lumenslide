@@ -1,0 +1,58 @@
+.slide-canvas {
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  flex: none;
+  user-select: none;
+}
+
+.slide-canvas__ret,
+.slide-canvas__img,
+.slide-canvas__texto {
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.slide-canvas__img--carregando {
+  background: linear-gradient(90deg, #eef1f6, #f7f8fb, #eef1f6);
+  background-size: 200% 100%;
+  animation: slide-canvas-brilho 1.2s linear infinite;
+}
+
+@keyframes slide-canvas-brilho {
+  from { background-position: 200% 0; }
+  to { background-position: 0 0; }
+}
+
+.slide-canvas__texto {
+  display: flex;
+  flex-direction: column;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.slide-canvas__editavel {
+  outline: none;
+  border-radius: 4px;
+  cursor: text;
+  user-select: text;
+  transition: box-shadow 0.12s ease;
+  min-height: 1em;
+}
+
+.slide-canvas--editavel .slide-canvas__editavel:hover {
+  box-shadow: 0 0 0 2px rgba(52, 212, 212, 0.55);
+}
+
+.slide-canvas--editavel .slide-canvas__editavel:focus {
+  box-shadow: 0 0 0 3px rgba(52, 212, 212, 0.95);
+  background: rgba(52, 212, 212, 0.06);
+}
+
+.slide-canvas__editavel:empty::before {
+  content: attr(data-vazio);
+  color: #a3acbd;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 0.6em;
+}

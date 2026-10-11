@@ -4,5 +4,4 @@ export type ViewKey =
   | "novo-slide"
   | "editor"
   | "musicas"
-  | "exportar"
   | "ajuda";

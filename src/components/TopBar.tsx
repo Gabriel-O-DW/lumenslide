@@ -10,10 +10,9 @@ interface Props {
 const titulos: Record<ViewKey, string> = {
   dashboard: "Painel e Configuração do Dia",
   calendario: "Calendário Litúrgico",
-  "novo-slide": "Novo Slide — Criar Celebração",
-  editor: "Editor de Apresentação",
+  "novo-slide": "Nova missa",
+  editor: "Editor de slides",
   musicas: "Músicas e Design do PowerPoint",
-  exportar: "Exportação e Composição Final",
   ajuda: "Ajuda",
 };
 

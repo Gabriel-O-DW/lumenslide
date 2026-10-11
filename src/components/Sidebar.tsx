@@ -9,10 +9,9 @@ interface Props {
 const items: { key: ViewKey; label: string; icon: string; destaque?: boolean }[] = [
   { key: "dashboard", label: "Dashboard", icon: "▦" },
   { key: "calendario", label: "Calendário", icon: "▤" },
-  { key: "novo-slide", label: "Novo slide", icon: "+", destaque: true },
+  { key: "novo-slide", label: "Nova missa", icon: "+", destaque: true },
   { key: "editor", label: "Editor", icon: "✎" },
   { key: "musicas", label: "Músicas", icon: "♪" },
-  { key: "exportar", label: "Exportar", icon: "⇪" },
   { key: "ajuda", label: "Ajuda", icon: "?" },
 ];
 

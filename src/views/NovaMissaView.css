@@ -1,0 +1,140 @@
+.nova-missa {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1.25rem;
+  max-width: 1180px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.nova-missa__principal {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+  grid-template-areas:
+    "cab cab"
+    "campos lit"
+    "rodape rodape";
+  gap: 1.75rem 2rem;
+  padding: 2rem;
+}
+
+.nova-missa__cabecalho { grid-area: cab; }
+.nova-missa__cabecalho h2 { margin: 0 0 0.4rem; font-size: 1.45rem; letter-spacing: -0.01em; }
+.nova-missa__ajuda { margin: 0; color: var(--fg-muted); max-width: 60ch; }
+
+.nova-missa__campos { grid-area: campos; display: flex; flex-direction: column; gap: 1.6rem; }
+
+.campo-bloco { display: flex; flex-direction: column; gap: 0.55rem; }
+.campo-bloco__rotulo {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+.campo-bloco__dica { color: var(--fg-dim); font-size: 0.8rem; }
+
+.nova-missa__linha { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.nova-missa__linha input[type="date"] { min-width: 170px; }
+
+.nova-missa__chips { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+
+.chip-opcao {
+  min-width: 76px;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.chip-opcao--ativo,
+.chip-opcao--ativo:hover:not(:disabled) {
+  background: rgba(52, 212, 212, 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nova-missa__segmentos { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.segmento {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  text-align: left;
+  padding: 0.9rem 1rem;
+  border-radius: var(--radius-sm);
+}
+.segmento small { color: var(--fg-muted); font-size: 0.78rem; line-height: 1.4; }
+.segmento--ativo,
+.segmento--ativo:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: rgba(52, 212, 212, 0.08);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.nova-missa__liturgia {
+  grid-area: lit;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1.2rem;
+  align-self: start;
+  min-height: 180px;
+}
+.nova-missa__status { color: var(--fg-muted); margin: 0; }
+.nova-missa__lit-topo { display: flex; gap: 0.8rem; align-items: center; margin-bottom: 1rem; }
+.nova-missa__lit-topo strong { display: block; line-height: 1.3; }
+.nova-missa__lit-topo small { color: var(--fg-muted); }
+.nova-missa__cor {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex: none;
+  box-shadow: 0 0 0 3px var(--bg-panel), 0 0 0 4px var(--border-strong);
+}
+.nova-missa__refs { display: grid; grid-template-columns: auto 1fr; gap: 0.45rem 0.9rem; margin: 0; font-size: 0.88rem; }
+.nova-missa__refs dt { color: var(--fg-muted); }
+.nova-missa__refs dd { margin: 0; }
+
+.nova-missa__rodape {
+  grid-area: rodape;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--border);
+  padding-top: 1.4rem;
+}
+.nova-missa__arquivo { color: var(--fg-muted); font-size: 0.85rem; }
+.nova-missa__arquivo strong { color: var(--fg); font-variant-numeric: tabular-nums; }
+.nova-missa__gerar { padding: 0.8rem 1.6rem; font-size: 1rem; margin-left: auto; }
+.nova-missa__existente { display: flex; align-items: center; gap: 1rem; margin-left: auto; color: var(--gold); flex-wrap: wrap; }
+
+.nova-missa__recentes ul { list-style: none; margin: 0; padding: 0.5rem; }
+.nova-missa__recente {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  background: transparent;
+  border-color: transparent;
+  padding: 0.65rem 0.75rem;
+}
+.nova-missa__recente:hover:not(:disabled) { background: var(--bg-elev); border-color: var(--border); }
+.nova-missa__recente strong { font-variant-numeric: tabular-nums; }
+.nova-missa__recente small { color: var(--fg-muted); }
+
+@media (max-width: 1100px) {
+  .nova-missa { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .nova-missa__principal {
+    grid-template-columns: 1fr;
+    grid-template-areas: "cab" "campos" "lit" "rodape";
+    padding: 1.25rem;
+  }
+  .nova-missa__segmentos { grid-template-columns: 1fr; }
+}

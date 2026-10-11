@@ -34,3 +34,13 @@
   place-items: center;
   color: var(--fg-muted);
 }
+
+/* Telas de trabalho em tela cheia (editor de slides): sem padding e sem rolagem da página */
+.app-main--cheio {
+  height: 100vh;
+}
+.app-content--cheio {
+  padding: 0;
+  min-height: 0;
+  overflow: hidden;
+}

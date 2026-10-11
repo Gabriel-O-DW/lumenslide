@@ -24,11 +24,11 @@ export function AcoesRapidas({ onNavigate }: Props) {
         </div>
       </button>
 
-      <button className="acoes__btn" onClick={() => onNavigate("exportar")}>
+      <button className="acoes__btn" onClick={() => onNavigate("editor")}>
         <span className="acoes__icon">⇪</span>
         <div>
           <strong>Exportar PowerPoint</strong>
-          <small>.pptx / .pdf prontos para projetar</small>
+          <small>Abra a missa no editor e baixe o .pptx</small>
         </div>
       </button>
     </div>
