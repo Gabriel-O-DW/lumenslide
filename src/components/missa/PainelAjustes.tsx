@@ -3,7 +3,7 @@ import { ROTULOS_MUSICA, oracoesEucaristicas, opcoesMisterioFe, type Secao } fro
 import { parseAvisos, parseBalancete } from "../../missa/parsers";
 import { enviarImagem, urlEmCache, carregarUrls } from "../../missa/imagens";
 import { cadastrarImagemEvangelho } from "../../missa/dados";
-import type { ContextoMissa, EstadoMissa, MomentoMusica, TelaExtra } from "../../missa/tipos";
+import type { ContextoMissa, EstadoMissa, MomentoMusica } from "../../missa/tipos";
 import "./PainelAjustes.css";
 
 interface Props {
@@ -17,6 +17,8 @@ interface Props {
   onAbrir: (grupo: string) => void;
   /** Ferramentas do elemento selecionado no slide */
   elemento?: ReactNode;
+  onAdicionar: (depoisDe: string) => void;
+  onEditarBloco: (id: string) => void;
 }
 
 export type GrupoAjustes = "missa" | "palavra" | "eucaristia" | "musicas" | "avisos" | "balancete" | "telas";
@@ -112,7 +114,18 @@ Lojinha – R$ 1.537,40
 Doações – R$ 3.110,00
 Total de dizimistas 607 (409 dizimaram)`;
 
-export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara, aberto, onAbrir, elemento }: Props) {
+export function PainelAjustes({
+  ctx,
+  estado,
+  secoes,
+  alterar,
+  onIrPara,
+  aberto,
+  onAbrir,
+  elemento,
+  onAdicionar,
+  onEditarBloco,
+}: Props) {
   const alternar = (id: string) => onAbrir(aberto === id ? "" : id);
   const raiz = useRef<HTMLDivElement>(null);
 
@@ -299,7 +312,14 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara, aberto, 
       </Grupo>
 
       <Grupo id="telas" titulo="Telas e ordem" aberto={aberto === "telas"} onAlternar={() => alternar("telas")}>
-        <ListaTelas estado={estado} secoes={secoes} alterar={alterar} ctx={ctx} onIrPara={onIrPara} />
+        <ListaTelas
+          estado={estado}
+          secoes={secoes}
+          alterar={alterar}
+          onIrPara={onIrPara}
+          onAdicionar={onAdicionar}
+          onEditarBloco={onEditarBloco}
+        />
       </Grupo>
     </div>
   );
@@ -398,19 +418,17 @@ function ListaTelas({
   estado,
   secoes,
   alterar,
-  ctx,
   onIrPara,
+  onAdicionar,
+  onEditarBloco,
 }: {
   estado: EstadoMissa;
   secoes: Secao[];
   alterar: Props["alterar"];
-  ctx: ContextoMissa;
   onIrPara: (id: string) => void;
+  onAdicionar: (depoisDe: string) => void;
+  onEditarBloco: (id: string) => void;
 }) {
-  const [menuApos, setMenuApos] = useState<string | null>(null);
-  const inputImagem = useRef<HTMLInputElement>(null);
-  const aposImagem = useRef<string>("");
-
   const mover = (id: string, delta: number) =>
     alterar((e) => {
       const ordem = secoes.map((s) => s.id);
@@ -429,29 +447,11 @@ function ListaTelas({
         : [...e.secoesDesligadas, id],
     }));
 
-  const adicionar = (depoisDe: string, tipo: TelaExtra["tipo"], imagem?: string) => {
-    const id = `extra-${Date.now().toString(36)}`;
-    alterar((e) => ({
-      ...e,
-      extras: [
-        ...e.extras,
-        { id, depoisDe, tipo, imagem, titulo: tipo === "texto" ? "TÍTULO" : undefined, texto: tipo === "texto" ? "Digite o texto aqui" : undefined },
-      ],
-    }));
-    setMenuApos(null);
-    setTimeout(() => onIrPara(id), 50);
-  };
-
-  const enviarImagemExtra = async (arquivos: FileList | null) => {
-    const arq = arquivos?.[0];
-    if (!arq) return;
-    const caminho = await enviarImagem(ctx.paroquiaId, "extras", arq);
-    adicionar(aposImagem.current, "imagem", caminho);
-    if (inputImagem.current) inputImagem.current.value = "";
-  };
-
   return (
     <div className="lista-telas">
+      <button type="button" className="lista-telas__adicionar" onClick={() => onAdicionar(secoes[secoes.length - 2]?.id ?? "")}>
+        + Adicionar slides
+      </button>
       {estado.ocultos.length > 0 && (
         <button type="button" className="ghost lista-telas__restaurar" onClick={() => alterar((e) => ({ ...e, ocultos: [] }))}>
           Mostrar {estado.ocultos.length} slide{estado.ocultos.length > 1 ? "s" : ""} oculto{estado.ocultos.length > 1 ? "s" : ""}
@@ -462,7 +462,7 @@ function ListaTelas({
           const ligada = !estado.secoesDesligadas.includes(s.id);
           const extra = estado.extras.find((x) => x.id === s.id);
           return (
-            <li key={s.id} className={"lista-telas__item" + (ligada ? "" : " lista-telas__item--off")}>
+            <li key={s.id} className={"lista-telas__item" + (ligada ? "" : " lista-telas__item--off") + (extra ? " lista-telas__item--extra" : "")}>
               <div className="lista-telas__linha">
                 <input
                   type="checkbox"
@@ -487,52 +487,34 @@ function ListaTelas({
                   >
                     ↓
                   </button>
-                  <button
-                    type="button"
-                    aria-label="Adicionar tela depois"
-                    title="Adicionar tela depois"
-                    onClick={() => setMenuApos(menuApos === s.id ? null : s.id)}
-                  >
+                  <button type="button" aria-label="Adicionar slides depois" title="Adicionar slides depois" onClick={() => onAdicionar(s.id)}>
                     +
                   </button>
                   {extra && (
-                    <button
-                      type="button"
-                      aria-label="Excluir tela"
-                      title="Excluir tela"
-                      onClick={() => alterar((e) => ({ ...e, extras: e.extras.filter((x) => x.id !== s.id) }))}
-                    >
-                      🗑
-                    </button>
+                    <>
+                      <button type="button" aria-label="Editar bloco" title="Editar bloco" onClick={() => onEditarBloco(extra.id)}>
+                        ✎
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Excluir bloco"
+                        title="Excluir bloco"
+                        onClick={() => {
+                          if (window.confirm(`Excluir “${s.rotulo}”?`)) {
+                            alterar((e) => ({ ...e, extras: e.extras.filter((x) => x.id !== s.id) }));
+                          }
+                        }}
+                      >
+                        🗑
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
-              {menuApos === s.id && (
-                <div className="lista-telas__menu">
-                  <button type="button" onClick={() => adicionar(s.id, "texto")}>Texto com título</button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      aposImagem.current = s.id;
-                      inputImagem.current?.click();
-                    }}
-                  >
-                    Imagem
-                  </button>
-                  <button type="button" onClick={() => adicionar(s.id, "branco")}>Tela em branco</button>
-                </div>
-              )}
             </li>
           );
         })}
       </ol>
-      <input
-        ref={inputImagem}
-        type="file"
-        accept="image/png,image/jpeg,image/webp"
-        hidden
-        onChange={(ev) => enviarImagemExtra(ev.target.files)}
-      />
       {estado.ordemSecoes.length > 0 && (
         <button type="button" className="ghost" onClick={() => alterar((e) => ({ ...e, ordemSecoes: [] }))}>
           Restaurar a ordem do modelo

@@ -136,3 +136,17 @@
   .missa-editor__corpo { grid-template-columns: minmax(0, 1fr) 320px; }
   .missa-editor__miniaturas { display: none; }
 }
+
+.missa-editor__adicionar {
+  position: sticky;
+  top: -0.75rem;
+  z-index: 2;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0.55rem;
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: var(--bg-panel);
+  color: var(--accent);
+  font-weight: 600;
+}

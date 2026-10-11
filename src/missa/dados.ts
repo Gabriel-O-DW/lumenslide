@@ -177,3 +177,36 @@ export async function excluirCelebracao(id: string): Promise<void> {
   const { error } = await supabase.from("celebracoes").delete().eq("id", id);
   if (error) throw error;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Biblioteca de blocos (ritos especiais, Liturgia das Horas...)      */
+/* ------------------------------------------------------------------ */
+
+export interface BlocoSalvo {
+  id: string;
+  nome: string;
+  tipo: "musica" | "texto" | "respostas";
+  dados: { titulo?: string; texto?: string; faixa?: "liturgica" | "fixa"; brancoEntre?: boolean };
+}
+
+export async function listarBlocos(paroquiaId: string): Promise<BlocoSalvo[]> {
+  const { data, error } = await supabase
+    .from("blocos")
+    .select("id, nome, tipo, dados")
+    .eq("paroquia_id", paroquiaId)
+    .order("nome");
+  if (error) throw error;
+  return data.map((b) => ({ ...b, tipo: b.tipo as BlocoSalvo["tipo"], dados: (b.dados ?? {}) as BlocoSalvo["dados"] }));
+}
+
+export async function salvarBloco(paroquiaId: string, bloco: Omit<BlocoSalvo, "id">): Promise<void> {
+  const { error } = await supabase
+    .from("blocos")
+    .insert({ paroquia_id: paroquiaId, nome: bloco.nome, tipo: bloco.tipo, dados: bloco.dados as Json });
+  if (error) throw error;
+}
+
+export async function excluirBloco(id: string): Promise<void> {
+  const { error } = await supabase.from("blocos").delete().eq("id", id);
+  if (error) throw error;
+}

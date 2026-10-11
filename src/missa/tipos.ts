@@ -92,14 +92,27 @@ export interface MusicaDaMissa {
   letra: string;
 }
 
+export type TipoBloco = "musica" | "texto" | "respostas" | "imagem" | "branco";
+
+/** Bloco de slides adicionado pelo usuário (rito especial, canto extra, imagem...) */
 export interface TelaExtra {
   id: string;
   /** Entra logo depois desta seção */
   depoisDe: string;
-  tipo: "texto" | "imagem" | "branco";
+  tipo: TipoBloco;
+  /** Nome do bloco na lista de telas */
+  nome?: string;
+  /** Título da faixa (música, texto) ou título opcional (respostas) */
   titulo?: string;
+  /** Letra / texto (linha em branco = novo slide) / respostas (uma por linha) */
   texto?: string;
+  /** Imagens (uma por slide) */
+  imagens?: string[];
+  /** @deprecated imagem única das versões anteriores */
   imagem?: string;
+  faixa?: EstiloFaixa;
+  /** Respostas: tela em branco entre uma resposta e outra */
+  brancoEntre?: boolean;
 }
 
 export interface EstadoMissa {

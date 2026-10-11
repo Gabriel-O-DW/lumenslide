@@ -270,12 +270,9 @@ export function layoutDoSlide(slide: Slide, cor: CorTema, paroquiaId: string): C
         entrelinha: 1.5,
         marcadores: true,
       });
-      m.texto("rodape", pct(18, 73, 60, 9), slide.rodape ?? "", {
-        fonte: "lato",
-        tamanho: 30,
-        cor: paleta.capaTitulo,
-        alinhamento: "left",
-      });
+      if (slide.rodape) {
+        m.texto("rodape", pct(18, 73, 60, 9), slide.rodape, { fonte: "lato", tamanho: 30, cor: paleta.capaTitulo, alinhamento: "left" });
+      }
       break;
     }
 

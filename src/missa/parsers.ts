@@ -111,3 +111,49 @@ export function parseBalancete(texto: string, dataMissa: string): Balancete | nu
     linhas: [...topo, ...saida],
   };
 }
+
+/* ------------------------------------------------------------------ */
+/*  Respostas do povo a partir de um rito colado                       */
+/* ------------------------------------------------------------------ */
+
+/** Marcador que vira os slides da Profissão de fé */
+export const MARCA_CREIO = "{creio}";
+
+const FALANTES =
+  "Todos|Todas|Candidat[oa]s?|Ministr[oa]s?|Assembleia|Povo|Fi[ée]is|Leitor|Comentarista|Animador|Bispo|Padre|Pe|Presidente|Celebrante|Di[áa]cono|AS|PR|T|R";
+const RESPONDEM = /^(todos|todas|candidat|ministr|assembleia|povo|fi[ée]is|as$|t$|r$)/i;
+
+/**
+ * Extrai do texto de um rito só o que o povo/candidatos respondem
+ * (é o que aparece no telão), na ordem. Ex.: "Candidatos.: Quero." → "Quero."
+ * Menções à Profissão de fé viram o marcador {creio}.
+ */
+export function extrairRespostas(rito: string): string[] {
+  const texto = rito.replace(/\r/g, "").replace(/\s+/g, " ");
+  const re = new RegExp(`(?:^|[\\s.!?)])(${FALANTES})\\s*\\.?\\s*\\.?\\s*:`, "gi");
+  const marcas = [...texto.matchAll(re)].map((m) => ({
+    falante: m[1],
+    inicio: m.index! + m[0].length,
+    fim: m.index! + (m[0].length - m[0].trimStart().length),
+  }));
+  const out: string[] = [];
+  marcas.forEach((m, i) => {
+    const trecho = texto.slice(m.inicio, marcas[i + 1]?.fim ?? texto.length).trim();
+    if (RESPONDEM.test(m.falante)) {
+      let r = trecho.replace(/\(.*$/, "").trim();
+      const fimFrase = r.search(/[.!?]/);
+      if (fimFrase >= 0) r = r.slice(0, fimFrase + 1);
+      else {
+        // Sem pontuação ("Amém Benção das Vestes"): para antes do próximo título
+        const palavras = r.split(" ");
+        const corte = palavras.findIndex((p, j) => j > 0 && /^[A-ZÁÉÍÓÚÂÊÔÃÕÇ]/.test(p));
+        if (corte > 0) r = palavras.slice(0, corte).join(" ");
+      }
+      if (r) out.push(r);
+    }
+    if (/profiss[ãa]o de f[ée]|creio em deus/i.test(trecho) && out[out.length - 1] !== MARCA_CREIO) {
+      out.push(MARCA_CREIO);
+    }
+  });
+  return out;
+}

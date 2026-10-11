@@ -1,12 +1,14 @@
 import { IMAGENS_TEMA, caminhoTema } from "./tema";
-import { estrofesDaLetra, parseAvisos, parseBalancete } from "./parsers";
+import { MARCA_CREIO, estrofesDaLetra, parseAvisos, parseBalancete } from "./parsers";
 import { numeroDoSalmo, referenciaPorExtenso } from "./referencias";
 import type {
   ContextoMissa,
   EstadoMissa,
   MomentoMusica,
   Slide,
+  TelaExtra,
   TextosParoquia,
+  TipoBloco,
 } from "./tipos";
 
 /* ------------------------------------------------------------------ */
@@ -164,7 +166,6 @@ export function gerarSecoes(ctx: ContextoMissa, e: EstadoMissa): Secao[] {
         tipo: "capa",
         titulo: lit.dia,
         texto: refsCapa.join("\n"),
-        rodape: nomeDaMissa(ctx.data, ctx.horario).replace(/^(\S+) /, "$1 · "),
         imagem: tema(IMAGENS_TEMA.capa(ctx.cor)),
       },
     ],
@@ -424,28 +425,105 @@ export function gerarSecoes(ctx: ContextoMissa, e: EstadoMissa): Secao[] {
 }
 
 /** Ordem final das seções, considerando as telas extras e a ordem personalizada */
-export function organizarSecoes(secoes: Secao[], e: EstadoMissa): Secao[] {
+export const NOMES_BLOCO: Record<TipoBloco, string> = {
+  musica: "Música",
+  texto: "Texto",
+  respostas: "Respostas do povo",
+  imagem: "Imagem",
+  branco: "Tela em branco",
+};
+
+/** Slides de um bloco adicionado pelo usuário */
+export function slidesDoBloco(extra: TelaExtra, ctx: ContextoMissa): Slide[] {
+  const base = { secao: extra.id };
+  const id = (i: number) => (i === 0 ? extra.id : `${extra.id}-${i + 1}`);
+  const blocosDeTexto = (t: string) =>
+    t
+      .replace(/\r/g, "")
+      .split(/\n\s*\n/)
+      .map((b) => b.trim())
+      .filter(Boolean);
+
+  switch (extra.tipo) {
+    case "branco":
+      return [{ ...base, id: extra.id, tipo: "branco" }];
+
+    case "imagem": {
+      const imagens = extra.imagens ?? (extra.imagem ? [extra.imagem] : []);
+      return imagens.map((imagem, i) => ({ ...base, id: id(i), tipo: "imagem", imagem }));
+    }
+
+    case "musica": {
+      const estrofes = estrofesDaLetra(extra.texto ?? "");
+      return (estrofes.length ? estrofes : [""]).map((texto, i) => ({
+        ...base,
+        id: id(i),
+        tipo: "faixa-texto",
+        titulo: extra.titulo ?? "",
+        faixa: extra.faixa ?? "liturgica",
+        texto,
+        fonte: 48,
+      }));
+    }
+
+    case "texto": {
+      const partes = blocosDeTexto(extra.texto ?? "");
+      return (partes.length ? partes : [""]).map((texto, i) => ({
+        ...base,
+        id: id(i),
+        tipo: "faixa-texto",
+        titulo: extra.titulo ?? "",
+        faixa: extra.faixa ?? "fixa",
+        icone: (extra.faixa ?? "fixa") === "fixa",
+        texto,
+        fonte: 44,
+      }));
+    }
+
+    case "respostas": {
+      const respostas = (extra.texto ?? "")
+        .split("\n")
+        .map((r) => r.trim())
+        .filter(Boolean);
+      const out: Slide[] = [];
+      let n = 0;
+      respostas.forEach((r, i) => {
+        if (i > 0 && extra.brancoEntre !== false) out.push({ ...base, id: `${extra.id}-b${i}`, tipo: "branco" });
+        if (r === MARCA_CREIO) {
+          slidesDoTexto(ctx.textos, "creio-curto").forEach((texto) =>
+            out.push({
+              ...base,
+              id: id(n++),
+              tipo: "faixa-texto",
+              titulo: tituloDoTexto(ctx.textos, "creio-curto", "PROFISSÃO DE FÉ"),
+              faixa: "fixa",
+              icone: true,
+              texto,
+              fonte: 54,
+            }),
+          );
+          return;
+        }
+        out.push(
+          extra.titulo
+            ? { ...base, id: id(n++), tipo: "faixa-texto", titulo: extra.titulo, faixa: extra.faixa ?? "fixa", texto: r, italico: true, fonte: 54 }
+            : { ...base, id: id(n++), tipo: "texto-central", texto: r, italico: true, fonte: 54 },
+        );
+      });
+      return out;
+    }
+  }
+}
+
+/** Ordem final das seções, considerando os blocos adicionados e a ordem personalizada */
+export function organizarSecoes(secoes: Secao[], e: EstadoMissa, ctx: ContextoMissa): Secao[] {
   const base = [...secoes];
   for (const extra of e.extras) {
     const idx = base.findIndex((s) => s.id === extra.depoisDe);
-    const slide: Slide =
-      extra.tipo === "imagem"
-        ? { id: extra.id, secao: extra.id, tipo: "imagem", imagem: extra.imagem }
-        : extra.tipo === "branco"
-          ? { id: extra.id, secao: extra.id, tipo: "branco" }
-          : {
-              id: extra.id,
-              secao: extra.id,
-              tipo: "faixa-texto",
-              titulo: extra.titulo ?? "",
-              texto: extra.texto ?? "",
-              faixa: "liturgica",
-              fonte: 48,
-            };
     base.splice(idx >= 0 ? idx + 1 : base.length, 0, {
       id: extra.id,
-      rotulo: extra.tipo === "imagem" ? "Imagem extra" : extra.tipo === "branco" ? "Tela em branco" : "Texto extra",
-      slides: [slide],
+      rotulo: extra.nome || extra.titulo || NOMES_BLOCO[extra.tipo] || "Tela extra",
+      slides: slidesDoBloco(extra, ctx),
       brancoDepois: extra.tipo !== "branco",
     });
   }

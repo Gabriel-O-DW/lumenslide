@@ -7,7 +7,8 @@ import { carregarCelebracao, montarContexto, salvarEstado, type DadosParoquia } 
 import { exportarPptx } from "../missa/pptx";
 import { PALETAS } from "../missa/tema";
 import { LARGURA, layoutDoSlide, type CampoEditavel } from "../missa/layout";
-import type { ContextoMissa, EstadoMissa, EstiloCaixa, Slide, Trecho } from "../missa/tipos";
+import type { ContextoMissa, EstadoMissa, EstiloCaixa, Slide, TelaExtra, Trecho } from "../missa/tipos";
+import { AdicionarSlides } from "../components/missa/AdicionarSlides";
 import "./MissaEditorView.css";
 
 interface Props {
@@ -29,6 +30,7 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
   const [exportando, setExportando] = useState<string | null>(null);
   const [caixaSel, setCaixaSel] = useState<string | null>(null);
   const [grupoAberto, setGrupoAberto] = useState("palavra");
+  const [dialogo, setDialogo] = useState<{ depoisDe: string; editando?: TelaExtra } | null>(null);
 
   // Carrega a missa salva + liturgia do dia
   useEffect(() => {
@@ -67,7 +69,7 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
   const alterar = useCallback((f: (e: EstadoMissa) => EstadoMissa) => setEstado((e) => (e ? f(e) : e)), []);
 
   const secoes = useMemo(
-    () => (ctx && estado ? organizarSecoes(gerarSecoes(ctx, estado), estado) : []),
+    () => (ctx && estado ? organizarSecoes(gerarSecoes(ctx, estado), estado, ctx) : []),
     [ctx, estado],
   );
   const slides = useMemo(() => (estado ? montarSlides(secoes, estado) : []), [secoes, estado]);
@@ -133,12 +135,8 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
 
   const editarTexto = (campo: CampoEditavel, texto: string, trechos: Trecho[] | null) => {
     if (!atual) return;
-    const extra = estado?.extras.find((x) => x.id === atual.id);
-    if (extra && (campo === "titulo" || campo === "texto")) {
-      alterar((e) => ({ ...e, extras: e.extras.map((x) => (x.id === extra.id ? { ...x, [campo]: texto } : x)) }));
-    } else {
-      editarSlide((ed) => ({ ...ed, [campo]: texto }));
-    }
+    // Edição vale só para este slide (inclusive dentro de um bloco adicionado)
+    editarSlide((ed) => ({ ...ed, [campo]: texto }));
     editarSlide((ed) => {
       const estilos = { ...ed.estilos };
       const atualCampo = { ...estilos[campo] };
@@ -163,6 +161,26 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
   const selecionarCaixa = (chave: string | null) => {
     setCaixaSel(chave);
     if (chave && atual) setGrupoAberto(grupoDaSecao(atual.secao));
+  };
+
+  /* Blocos adicionados (ritos especiais, músicas extras, imagens...) */
+  const abrirAdicionar = (depoisDe?: string) =>
+    setDialogo({ depoisDe: depoisDe ?? atual?.secao ?? secoes[secoes.length - 2]?.id ?? "" });
+
+  const blocoAtual = estado?.extras.find((x) => x.id === atual?.secao);
+
+  const editarBloco = (id: string) => {
+    const bloco = estado?.extras.find((x) => x.id === id);
+    if (bloco) setDialogo({ depoisDe: bloco.depoisDe, editando: bloco });
+  };
+
+  const confirmarBloco = (bloco: TelaExtra) => {
+    alterar((e) => {
+      const existe = e.extras.some((x) => x.id === bloco.id);
+      return { ...e, extras: existe ? e.extras.map((x) => (x.id === bloco.id ? bloco : x)) : [...e.extras, bloco] };
+    });
+    setDialogo(null);
+    setSelecionado(bloco.id);
   };
 
   const restaurar = () => {
@@ -252,6 +270,9 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
 
       <div className="missa-editor__corpo">
         <nav className="missa-editor__miniaturas" ref={listaRef} aria-label="Slides">
+          <button type="button" className="missa-editor__adicionar" onClick={() => abrirAdicionar()}>
+            + Adicionar slides
+          </button>
           {slides.map((s, i) => {
             const novaSecao = s.secao !== secaoAnterior && s.tipo !== "branco";
             if (novaSecao) secaoAnterior = s.secao;
@@ -330,6 +351,14 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
                 </button>
               </div>
               <div className="missa-editor__acoes">
+                <button type="button" onClick={() => abrirAdicionar()} title="Adiciona slides depois deste bloco">
+                  + Adicionar slides aqui
+                </button>
+                {blocoAtual && (
+                  <button type="button" onClick={() => editarBloco(blocoAtual.id)} title="Edita o bloco adicionado">
+                    ✎ Editar bloco
+                  </button>
+                )}
                 {editado && (
                   <button type="button" className="ghost" onClick={restaurar} title="Desfaz as edições manuais deste slide">
                     ↺ Voltar ao automático
@@ -355,6 +384,8 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
             onIrPara={irPara}
             aberto={grupoAberto}
             onAbrir={setGrupoAberto}
+            onAdicionar={abrirAdicionar}
+            onEditarBloco={editarBloco}
             elemento={
               caixa ? (
                 <FerramentasCaixa
@@ -369,6 +400,17 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
           />
         </aside>
       </div>
+
+      {dialogo && (
+        <AdicionarSlides
+          paroquiaId={ctx.paroquiaId}
+          secoes={secoes}
+          depoisDe={dialogo.depoisDe}
+          editando={dialogo.editando}
+          onConfirmar={confirmarBloco}
+          onFechar={() => setDialogo(null)}
+        />
+      )}
     </div>
   );
 }

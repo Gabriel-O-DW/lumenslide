@@ -86,6 +86,47 @@ export type Database = {
           },
         ]
       }
+      blocos: {
+        Row: {
+          atualizado_em: string
+          criado_em: string
+          criado_por: string | null
+          dados: Json
+          id: string
+          nome: string
+          paroquia_id: string
+          tipo: string
+        }
+        Insert: {
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          dados?: Json
+          id?: string
+          nome: string
+          paroquia_id: string
+          tipo: string
+        }
+        Update: {
+          atualizado_em?: string
+          criado_em?: string
+          criado_por?: string | null
+          dados?: Json
+          id?: string
+          nome?: string
+          paroquia_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blocos_paroquia_id_fkey"
+            columns: ["paroquia_id"]
+            isOneToOne: false
+            referencedRelation: "paroquias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       celebracoes: {
         Row: {
           atualizado_em: string
