@@ -63,7 +63,7 @@ export function ForgotPasswordView({ onTrocarTela, enviado }: Props) {
           }}
         >
           <li>Confira a caixa de spam ou promoções, por garantia.</li>
-          <li>O remetente é <strong>no-reply@lumenslide.org</strong>.</li>
+          <li>O e-mail é enviado pelo Supabase (remetente &quot;Supabase Auth&quot;).</li>
           <li>Não recebeu? Aguarde 5 minutos e tente novamente.</li>
         </ul>
         <button

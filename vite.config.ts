@@ -6,6 +6,8 @@ export default defineConfig({
   plugins: [react()],
   // Para deploy no GitHub Pages, troque o `base` para "/lumenslide/"
   base: "/",
+  // As credenciais do Supabase usam o prefixo NEXT_PUBLIC_ no .env.local
+  envPrefix: ["VITE_", "NEXT_PUBLIC_"],
   server: {
     port: 5173,
     open: true,

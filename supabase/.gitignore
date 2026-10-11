@@ -1,0 +1,11 @@
+# Supabase
+.branches
+.temp
+
+# dotenvx
+.env.keys
+.env.local
+.env.*.local
+
+# Textos litúrgicos protegidos (Missal/CNBB, Paulus) — nunca versionar
+privado/

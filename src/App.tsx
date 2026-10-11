@@ -11,13 +11,16 @@ import { NovoSlideView } from "./views/NovoSlideView";
 import { AppStateProvider } from "./state/AppState";
 import { AuthProvider, useAuth } from "./state/AuthState";
 import { AuthRouter } from "./views/auth/AuthRouter";
+import { RedefinirSenhaView } from "./views/auth/RedefinirSenhaView";
 import type { ViewKey } from "./types/nav";
 import "./App.css";
 
 function AppInterno() {
-  const { usuario } = useAuth();
+  const { usuario, iniciando, recuperandoSenha } = useAuth();
   const [view, setView] = useState<ViewKey>("dashboard");
 
+  if (iniciando) return <div className="app-carregando">Carregando…</div>;
+  if (recuperandoSenha) return <RedefinirSenhaView />;
   if (!usuario) return <AuthRouter />;
 
   return (

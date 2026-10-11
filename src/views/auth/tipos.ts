@@ -1,1 +1,1 @@
-export type TelaAuth = "login" | "registrar" | "esqueci" | "esqueci-enviado";
+export type TelaAuth = "login" | "registrar" | "esqueci" | "esqueci-enviado" | "confirmar-email";

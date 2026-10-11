@@ -4,6 +4,7 @@ import type {
   LiturgiaDiaria,
   SalmoNormalizado,
 } from "../types/liturgia";
+import { supabase } from "../lib/supabase";
 
 const API_BASE = "https://api-liturgia-diaria.vercel.app";
 const DEV_PREFIX = "/api-liturgia";
@@ -15,18 +16,37 @@ function endpoint(path: string): string {
   return `${API_BASE}${path}`;
 }
 
+/** Fonte principal: cobre datas futuras e envia CORS aberto (sem proxy). */
+const API_V2 = "https://liturgia.up.railway.app/v2/";
+
 const cache = new Map<string, Promise<LiturgiaDiaria>>();
 
 export function buscarLiturgia(dataIso: string): Promise<LiturgiaDiaria> {
   const cached = cache.get(dataIso);
   if (cached) return cached;
   const p = (async () => {
-    const res = await fetch(endpoint(`/?date=${encodeURIComponent(dataIso)}`));
-    if (!res.ok) {
-      throw new Error(`Falha na API de liturgia (${res.status})`);
+    // 1) Cache no Supabase, preenchido pelo sincronizador diário
+    const { data: linha } = await supabase
+      .from("liturgia_dia")
+      .select("dados")
+      .eq("data", dataIso)
+      .maybeSingle();
+    if (linha?.dados) return normalizarV2(linha.dados as RespostaV2, dataIso);
+
+    // 2) Fonte v2 direto; 3) fonte reserva
+    try {
+      return await buscarLiturgiaV2(dataIso);
+    } catch (erroV2) {
+      // Fonte reserva (api-liturgia-diaria)
+      const res = await fetch(endpoint(`/?date=${encodeURIComponent(dataIso)}`));
+      if (!res.ok) {
+        throw new Error(
+          `Falha nas fontes de liturgia (${(erroV2 as Error).message}; reserva ${res.status})`,
+        );
+      }
+      const raw = await res.json();
+      return normalizar(raw, dataIso);
     }
-    const raw = await res.json();
-    return normalizar(raw, dataIso);
   })();
   cache.set(dataIso, p);
   // Em caso de falha, libera o cache para retry
@@ -334,4 +354,87 @@ function converterDataParaIso(s: string | undefined): string | undefined {
   // já em ISO?
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
   return undefined;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fonte v2 (liturgia.up.railway.app)                                 */
+/* ------------------------------------------------------------------ */
+
+interface LeituraV2 {
+  referencia?: string;
+  titulo?: string;
+  texto?: string;
+  refrao?: string;
+}
+
+interface RespostaV2 {
+  data?: string;
+  liturgia?: string;
+  cor?: string;
+  leituras?: {
+    primeiraLeitura?: LeituraV2[];
+    salmo?: LeituraV2[];
+    segundaLeitura?: LeituraV2[];
+    evangelho?: LeituraV2[];
+  };
+}
+
+async function buscarLiturgiaV2(dataIso: string): Promise<LiturgiaDiaria> {
+  const [ano, mes, dia] = dataIso.split("-").map((x) => parseInt(x, 10));
+  const res = await fetch(`${API_V2}?dia=${dia}&mes=${mes}&ano=${ano}`);
+  if (!res.ok) throw new Error(`v2 ${res.status}`);
+  const raw = (await res.json()) as RespostaV2;
+  if (!raw.liturgia || !raw.leituras) throw new Error("v2 sem dados");
+  return normalizarV2(raw, dataIso);
+}
+
+export function normalizarV2(raw: RespostaV2, fallbackData: string): LiturgiaDiaria {
+  const { slug, rotulo } = corDoCorpo({ cor: raw.cor });
+  const l = raw.leituras ?? {};
+  // Quando há opções (ex.: forma longa/breve), a primeira é a principal.
+  const p1 = l.primeiraLeitura?.[0];
+  const sl = l.salmo?.[0];
+  const p2 = l.segundaLeitura?.[0];
+  const ev = l.evangelho?.[0];
+
+  const leitura = (x: LeituraV2 | undefined, titulo: string): LeituraNormalizada | undefined =>
+    x?.texto
+      ? {
+          titulo,
+          referencia: x.referencia?.trim(),
+          texto: limparHtml(x.texto),
+          chamada: x.titulo?.trim(),
+          rodape: "Palavra do Senhor.",
+          rodapeResposta: "Graças a Deus.",
+        }
+      : undefined;
+
+  const salmo: SalmoNormalizado | undefined = sl
+    ? {
+        titulo: "Salmo Responsorial",
+        referencia: sl.referencia?.trim(),
+        refrao: limparHtml(sl.refrao ?? ""),
+        texto: limparHtml(sl.texto ?? ""),
+      }
+    : undefined;
+
+  const evangelista = ev?.titulo?.match(/segundo\s+(?:S[ãa]o\s+)?(.+?)\s*$/i)?.[1];
+
+  return {
+    data: converterDataParaIso(raw.data) ?? fallbackData,
+    diaLiturgico: raw.liturgia?.trim(),
+    cor: slug,
+    corRotulo: rotulo,
+    primeiraLeitura: leitura(p1, "Primeira Leitura"),
+    salmo,
+    segundaLeitura: leitura(p2, "Segunda Leitura"),
+    evangelho: ev?.texto
+      ? {
+          ...leitura(ev, evangelista ? `Evangelho segundo ${evangelista}` : "Evangelho")!,
+          rodape: "Palavra da Salvação.",
+          rodapeResposta: "Glória a vós, Senhor.",
+        }
+      : undefined,
+    fonte: "liturgia.up.railway.app",
+  };
 }

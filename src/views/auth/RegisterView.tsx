@@ -53,7 +53,8 @@ export function RegisterView({ onTrocarTela }: Props) {
       return;
     }
     try {
-      await registrar({ nome, email, senha, paroquia });
+      const precisaConfirmar = await registrar({ nome, email, senha, paroquia });
+      if (precisaConfirmar) onTrocarTela("confirmar-email");
     } catch {
       /* erro já no contexto */
     }
@@ -111,7 +112,7 @@ export function RegisterView({ onTrocarTela }: Props) {
         </div>
 
         <div className="campo">
-          <label htmlFor="reg-paroquia">Paróquia (opcional)</label>
+          <label htmlFor="reg-paroquia">Paróquia</label>
           <input
             id="reg-paroquia"
             type="text"

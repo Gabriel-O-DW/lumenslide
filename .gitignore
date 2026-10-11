@@ -56,3 +56,9 @@ Thumbs.db
 # Temp
 tmp/
 temp/
+
+# TypeScript incremental
+*.tsbuildinfo
+
+.vercel
+.env*
