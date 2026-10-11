@@ -22,6 +22,32 @@ export type TipoSlide =
   | "aviso"
   | "final";
 
+/** Trecho de texto com formatação própria (negrito/itálico em parte do texto) */
+export interface Trecho {
+  t: string;
+  b: boolean;
+  i: boolean;
+}
+
+export type FonteSlide = "arial" | "lato" | "poppins" | "corsiva" | "calibri" | "times";
+
+/** Ajustes manuais de uma caixa do slide (posição em polegadas, fonte, tamanho...) */
+export interface EstiloCaixa {
+  x?: number;
+  y?: number;
+  w?: number;
+  h?: number;
+  fonte?: FonteSlide;
+  /** Tamanho fixo em pt (desliga a redução automática) */
+  tamanho?: number;
+  negrito?: boolean;
+  italico?: boolean;
+  alinhamento?: "left" | "center" | "right";
+  cor?: string;
+  /** Texto com formatação por trecho; sobrepõe o texto do campo */
+  trechos?: Trecho[];
+}
+
 /** Estilo da faixa: na cor do dia (músicas) ou azul fixo (orações da paróquia) */
 export type EstiloFaixa = "liturgica" | "fixa";
 
@@ -46,7 +72,8 @@ export interface Slide {
   fonte?: number;
   /** Ajuste manual do usuário sobre o tamanho (1 = 100%) */
   escala?: number;
-  alinhamento?: "centro" | "esquerda";
+  /** Ajustes manuais por caixa (chave = campo de texto ou elemento: "faixa", "icone", "fundo"...) */
+  estilos?: Record<string, EstiloCaixa>;
 }
 
 /** Momentos de música que o modelo usa */
@@ -107,7 +134,7 @@ export interface EstadoMissa {
   /** Slides ocultados manualmente */
   ocultos: string[];
   /** Edições manuais por id de slide */
-  edicoes: Record<string, Partial<Pick<Slide, "titulo" | "texto" | "subtitulo" | "rodape" | "escala" | "imagem">>>;
+  edicoes: Record<string, Partial<Pick<Slide, "titulo" | "texto" | "subtitulo" | "rodape" | "escala" | "imagem" | "estilos">>>;
 }
 
 /** Textos fixos da paróquia (tabela textos), já indexados por chave */

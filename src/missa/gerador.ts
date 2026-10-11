@@ -149,9 +149,9 @@ export function gerarSecoes(ctx: ContextoMissa, e: EstadoMissa): Secao[] {
 
   // Capa
   const refsCapa = [
-    lit.l1 && `1ª Leitura: ${referenciaPorExtenso(lit.l1)}`,
+    lit.l1 && `1º Leitura: ${referenciaPorExtenso(lit.l1)}`,
     lit.salmo && `Salmo: ${numeroDoSalmo(lit.salmo)}`,
-    lit.l2 && `2ª Leitura: ${referenciaPorExtenso(lit.l2)}`,
+    lit.l2 && `2º Leitura: ${referenciaPorExtenso(lit.l2)}`,
     lit.ev && `Evangelho: ${referenciaPorExtenso(lit.ev)}`,
   ].filter(Boolean);
   add(

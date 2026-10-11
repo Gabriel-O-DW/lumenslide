@@ -30,6 +30,7 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+.slide-canvas__texto > div { width: 100%; }
 
 .slide-canvas__editavel {
   outline: none;
@@ -56,3 +57,66 @@
   font-weight: 400;
   font-size: 0.6em;
 }
+
+/* Parágrafos com marcador "o" (lista de leituras da capa) */
+.slide-canvas__texto--marcadores .slide-canvas__par {
+  position: relative;
+  padding-left: var(--recuo);
+}
+.slide-canvas__texto--marcadores .slide-canvas__par::before {
+  content: "o";
+  position: absolute;
+  left: 0;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  font-style: normal;
+  color: #000;
+}
+
+/* Seleção de caixa: moldura, alças de redimensionar e botão de mover */
+.slide-canvas--editavel .slide-canvas__ret,
+.slide-canvas--editavel .slide-canvas__img { cursor: pointer; }
+
+.slide-canvas__moldura {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1.5px solid #1ea8a8;
+  pointer-events: none;
+  z-index: 3;
+}
+.slide-canvas__mover {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  pointer-events: auto;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 0 0 6px 0;
+  background: #1ea8a8;
+  color: #00161a;
+  font-size: 13px;
+  line-height: 22px;
+  cursor: move;
+  touch-action: none;
+}
+.slide-canvas__mover:hover:not(:disabled) { color: #fff; }
+.slide-canvas__alca {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 1.5px solid #1ea8a8;
+  border-radius: 2px;
+  pointer-events: auto;
+  touch-action: none;
+}
+.slide-canvas__alca--nw { left: -5px; top: -5px; cursor: nwse-resize; }
+.slide-canvas__alca--n { left: calc(50% - 5px); top: -5px; cursor: ns-resize; }
+.slide-canvas__alca--ne { right: -5px; top: -5px; cursor: nesw-resize; }
+.slide-canvas__alca--e { right: -5px; top: calc(50% - 5px); cursor: ew-resize; }
+.slide-canvas__alca--se { right: -5px; bottom: -5px; cursor: nwse-resize; }
+.slide-canvas__alca--s { left: calc(50% - 5px); bottom: -5px; cursor: ns-resize; }
+.slide-canvas__alca--sw { left: -5px; bottom: -5px; cursor: nesw-resize; }
+.slide-canvas__alca--w { left: -5px; top: calc(50% - 5px); cursor: ew-resize; }

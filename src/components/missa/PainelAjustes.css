@@ -173,3 +173,13 @@
 }
 .lista-telas__menu button { font-size: 0.78rem; padding: 0.35rem 0.6rem; }
 .lista-telas__restaurar { align-self: flex-start; font-size: 0.8rem; }
+
+.painel-ajustes__elemento {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 1rem 1.1rem 1.1rem;
+  background: linear-gradient(180deg, var(--bg-elev), var(--bg-panel-2));
+  border-bottom: 1px solid var(--border-strong);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+}

@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ROTULOS_MUSICA, oracoesEucaristicas, opcoesMisterioFe, type Secao } from "../../missa/gerador";
 import { parseAvisos, parseBalancete } from "../../missa/parsers";
 import { enviarImagem, urlEmCache, carregarUrls } from "../../missa/imagens";
@@ -12,15 +12,37 @@ interface Props {
   secoes: Secao[];
   alterar: (f: (e: EstadoMissa) => EstadoMissa) => void;
   onIrPara: (secaoId: string) => void;
+  /** Grupo aberto (controlado pelo editor, que abre o grupo do elemento clicado) */
+  aberto: string;
+  onAbrir: (grupo: string) => void;
+  /** Ferramentas do elemento selecionado no slide */
+  elemento?: ReactNode;
+}
+
+export type GrupoAjustes = "missa" | "palavra" | "eucaristia" | "musicas" | "avisos" | "balancete" | "telas";
+
+const MOMENTOS_MUSICA = new Set<string>(["abertura", "ato-penitencial", "gloria", "aclamacao", "ofertorio", "santo", "cordeiro", "comunhao"]);
+
+/** Grupo do painel que corresponde a cada seção do slide */
+export function grupoDaSecao(secao: string): GrupoAjustes {
+  if (MOMENTOS_MUSICA.has(secao)) return "musicas";
+  if (["capa", "leitura1", "salmo", "leitura2", "evangelho", "evangelho-imagens"].includes(secao)) return "palavra";
+  if (secao === "creio") return "missa";
+  if (["preces", "liturgia-eucaristica", "oe-titulo", "doxologia"].includes(secao) || secao.startsWith("oe-aclamacao")) return "eucaristia";
+  if (secao === "avisos") return "avisos";
+  if (secao === "balancete") return "balancete";
+  return "telas";
 }
 
 function Grupo({
+  id,
   titulo,
   resumo,
   aberto,
   onAlternar,
   children,
 }: {
+  id: string;
   titulo: string;
   resumo?: string;
   aberto: boolean;
@@ -28,7 +50,7 @@ function Grupo({
   children: ReactNode;
 }) {
   return (
-    <section className={"ajustes-grupo" + (aberto ? " ajustes-grupo--aberto" : "")}>
+    <section className={"ajustes-grupo" + (aberto ? " ajustes-grupo--aberto" : "")} data-grupo={id}>
       <button type="button" className="ajustes-grupo__cab" aria-expanded={aberto} onClick={onAlternar}>
         <span className="ajustes-grupo__seta" aria-hidden>
           ▸
@@ -90,9 +112,15 @@ Lojinha – R$ 1.537,40
 Doações – R$ 3.110,00
 Total de dizimistas 607 (409 dizimaram)`;
 
-export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props) {
-  const [aberto, setAberto] = useState<string>("palavra");
-  const alternar = (id: string) => setAberto((a) => (a === id ? "" : id));
+export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara, aberto, onAbrir, elemento }: Props) {
+  const alternar = (id: string) => onAbrir(aberto === id ? "" : id);
+  const raiz = useRef<HTMLDivElement>(null);
+
+  // Ao abrir um grupo por um clique no slide, mostra-o no painel
+  useEffect(() => {
+    if (!aberto) return;
+    raiz.current?.querySelector(`[data-grupo="${aberto}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [aberto]);
   const set = <K extends keyof EstadoMissa>(k: K, v: EstadoMissa[K]) => alterar((e) => ({ ...e, [k]: v }));
   const setLit = (k: keyof EstadoMissa["liturgia"], v: string) =>
     alterar((e) => ({ ...e, liturgia: { ...e.liturgia, [k]: v } }));
@@ -106,8 +134,14 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
   const preenchidas = momentosAtivos.filter((m) => estado.musicas[m]?.letra?.trim()).length;
 
   return (
-    <div className="painel-ajustes">
+    <div className="painel-ajustes" ref={raiz}>
+      {elemento && (
+        <section className="painel-ajustes__elemento" aria-label="Elemento selecionado">
+          {elemento}
+        </section>
+      )}
       <Grupo
+        id="missa"
         titulo="Missa"
         resumo={`${estado.comMusica ? "Com música" : "Sem música"} · Creio ${estado.creio}`}
         aberto={aberto === "missa"}
@@ -131,7 +165,7 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
         </Campo>
       </Grupo>
 
-      <Grupo titulo="Liturgia da Palavra" aberto={aberto === "palavra"} onAlternar={() => alternar("palavra")}>
+      <Grupo id="palavra" titulo="Liturgia da Palavra" aberto={aberto === "palavra"} onAlternar={() => alternar("palavra")}>
         <Campo rotulo="Título do dia (capa)">
           <input
             value={estado.liturgia.diaLiturgico ?? ctx.diaLiturgico}
@@ -168,7 +202,7 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
       </Grupo>
 
       <Grupo
-        titulo="Liturgia Eucarística"
+        id="eucaristia" titulo="Liturgia Eucarística"
         resumo={estado.oracaoEucaristica ? `OE ${estado.oracaoEucaristica}` : undefined}
         aberto={aberto === "eucaristia"}
         onAlternar={() => alternar("eucaristia")}
@@ -208,7 +242,7 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
 
       {estado.comMusica && (
         <Grupo
-          titulo="Músicas"
+          id="musicas" titulo="Músicas"
           resumo={`${preenchidas}/${momentosAtivos.length}`}
           aberto={aberto === "musicas"}
           onAlternar={() => alternar("musicas")}
@@ -231,7 +265,7 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
       )}
 
       <Grupo
-        titulo="Avisos"
+        id="avisos" titulo="Avisos"
         resumo={avisos.length ? `${avisos.length} aviso${avisos.length > 1 ? "s" : ""}` : undefined}
         aberto={aberto === "avisos"}
         onAlternar={() => alternar("avisos")}
@@ -248,7 +282,7 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
       </Grupo>
 
       <Grupo
-        titulo="Prestação de contas"
+        id="balancete" titulo="Prestação de contas"
         resumo={balancete ? "Incluída" : undefined}
         aberto={aberto === "balancete"}
         onAlternar={() => alternar("balancete")}
@@ -264,7 +298,7 @@ export function PainelAjustes({ ctx, estado, secoes, alterar, onIrPara }: Props)
         </Campo>
       </Grupo>
 
-      <Grupo titulo="Telas e ordem" aberto={aberto === "telas"} onAlternar={() => alternar("telas")}>
+      <Grupo id="telas" titulo="Telas e ordem" aberto={aberto === "telas"} onAlternar={() => alternar("telas")}>
         <ListaTelas estado={estado} secoes={secoes} alterar={alterar} ctx={ctx} onIrPara={onIrPara} />
       </Grupo>
     </div>

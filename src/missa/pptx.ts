@@ -1,5 +1,5 @@
 import { FONTES } from "./tema";
-import { LARGURA, ALTURA, MARGEM_TEXTO, layoutDoSlide, type Caixa } from "./layout";
+import { LARGURA, ALTURA, MARGEM_TEXTO, RECUO_MARCADOR, layoutDoSlide, paragrafos, type Caixa } from "./layout";
 import { imagemComoDataUrl } from "./imagens";
 import type { CorTema, Slide } from "./tipos";
 
@@ -72,7 +72,9 @@ function desenhar(s: SlidePptx, c: Caixa, dados: Map<string, ImagemCarregada>) {
       const img = dados.get(c.caminho);
       if (!img) return;
       const proporcao = img.altura / img.largura;
-      if (c.ajuste === "cobrir") {
+      if (c.ajuste === "esticar") {
+        s.addImage({ data: img.data, ...pos });
+      } else if (c.ajuste === "cobrir") {
         // Tamanho com a proporção original; o pptxgenjs recorta para a caixa
         s.addImage({ data: img.data, x: c.x, y: c.y, w: c.w, h: c.w * proporcao, sizing: { type: "cover", w: c.w, h: c.h } });
       } else {
@@ -83,20 +85,33 @@ function desenhar(s: SlidePptx, c: Caixa, dados: Map<string, ImagemCarregada>) {
       }
       return;
     }
-    case "texto":
+    case "texto": {
       if (!c.texto.trim()) return;
-      s.addText(c.texto, {
+      const pars = paragrafos(c.trechos);
+      const runs = pars.flatMap((par, ip) => {
+        const ultimoPar = ip === pars.length - 1;
+        const itens = par.length ? par : [{ t: "", b: c.negrito, i: c.italico }];
+        return itens.map((tr, it) => ({
+          text: tr.t,
+          options: {
+            bold: tr.b,
+            italic: tr.i,
+            breakLine: it === itens.length - 1 && !ultimoPar,
+            ...(c.marcadores ? { bullet: { code: "006F", indent: RECUO_MARCADOR * 72 } } : {}),
+          },
+        }));
+      });
+      s.addText(runs, {
         ...pos,
         fontFace: FONTES[c.fonte].pptx,
         fontSize: c.tamanho,
-        bold: c.negrito,
-        italic: c.italico,
         color: c.cor,
         align: c.alinhamento,
         valign: c.vertical,
         margin: MARGEM_TEXTO * 72,
-        lineSpacingMultiple: 1,
+        lineSpacingMultiple: c.entrelinha,
         fit: "none",
       });
+    }
   }
 }

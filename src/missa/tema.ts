@@ -1,5 +1,5 @@
 import type { CorLiturgicaSlug } from "../types/liturgia";
-import type { CorTema } from "./tipos";
+import type { CorTema, FonteSlide } from "./tipos";
 
 /**
  * Tema "Rainha dos Apóstolos" — reproduz o PPTX da paróquia.
@@ -7,8 +7,10 @@ import type { CorTema } from "./tipos";
  */
 
 export interface PaletaCor {
-  /** Fundo da faixa de título das músicas; null = sem faixa (festas brancas) */
+  /** Fundo da faixa de título das músicas */
   faixa: string | null;
+  /** Textura no lugar da cor sólida (ex.: papel, nas festas brancas) */
+  faixaImagem?: string;
   /** Cor do texto da faixa */
   faixaTexto: string;
   /** Cor do título do dia na capa */
@@ -23,8 +25,8 @@ export const PALETAS: Record<CorTema, PaletaCor> = {
   roxo: { faixa: "7030A0", faixaTexto: "FFFFFF", capaTitulo: "4B1F6F", amostra: "#7030A0", rotulo: "Roxo" },
   vermelho: { faixa: "C00000", faixaTexto: "FFFFFF", capaTitulo: "8B0000", amostra: "#C00000", rotulo: "Vermelho" },
   rosa: { faixa: "D86BA0", faixaTexto: "FFFFFF", capaTitulo: "A3456E", amostra: "#D86BA0", rotulo: "Rosa" },
-  // Como no modelo da Assunção: sem faixa, título dourado
-  branco: { faixa: null, faixaTexto: "9B8053", capaTitulo: "0070C0", amostra: "#E9E4D6", rotulo: "Branco" },
+  // Como no modelo da Assunção: faixa com textura de papel e título dourado
+  branco: { faixa: null, faixaImagem: "tema/faixa-branco.jpg", faixaTexto: "9B8053", capaTitulo: "0070C0", amostra: "#E9E4D6", rotulo: "Branco" },
   dourado: { faixa: "B8912F", faixaTexto: "FFFFFF", capaTitulo: "7A5C12", amostra: "#B8912F", rotulo: "Dourado" },
 };
 
@@ -66,11 +68,13 @@ export function caminhoTema(paroquiaId: string, relativo: string): string {
 }
 
 /** Fontes: nome usado no PPTX (instaladas no Windows/Office) e pilha CSS para a prévia */
-export const FONTES = {
-  arial: { pptx: "Arial", css: "Arial, 'Helvetica Neue', Helvetica, sans-serif" },
-  lato: { pptx: "Lato", css: "'Lato', Arial, sans-serif" },
-  poppins: { pptx: "Poppins", css: "'Poppins', Arial, sans-serif" },
-  corsiva: { pptx: "Monotype Corsiva", css: "'Monotype Corsiva', 'Dancing Script', cursive" },
-} as const;
+export const FONTES: Record<FonteSlide, { nome: string; pptx: string; css: string }> = {
+  arial: { nome: "Arial", pptx: "Arial", css: "Arial, 'Helvetica Neue', Helvetica, sans-serif" },
+  lato: { nome: "Lato", pptx: "Lato", css: "'Lato', Arial, sans-serif" },
+  poppins: { nome: "Poppins", pptx: "Poppins", css: "'Poppins', Arial, sans-serif" },
+  corsiva: { nome: "Monotype Corsiva", pptx: "Monotype Corsiva", css: "'Monotype Corsiva', 'Dancing Script', cursive" },
+  calibri: { nome: "Calibri", pptx: "Calibri", css: "Calibri, Carlito, 'Segoe UI', Arial, sans-serif" },
+  times: { nome: "Times New Roman", pptx: "Times New Roman", css: "'Times New Roman', Times, serif" },
+};
 
-export type FonteId = keyof typeof FONTES;
+export type FonteId = FonteSlide;

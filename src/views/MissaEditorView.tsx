@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { SlideCanvas } from "../components/missa/SlideCanvas";
-import { PainelAjustes } from "../components/missa/PainelAjustes";
+import { PainelAjustes, grupoDaSecao } from "../components/missa/PainelAjustes";
+import { FerramentasCaixa } from "../components/missa/FerramentasCaixa";
 import { gerarSecoes, montarSlides, nomeDaMissa, organizarSecoes } from "../missa/gerador";
 import { carregarCelebracao, montarContexto, salvarEstado, type DadosParoquia } from "../missa/dados";
 import { exportarPptx } from "../missa/pptx";
 import { PALETAS } from "../missa/tema";
-import type { CampoEditavel } from "../missa/layout";
-import type { ContextoMissa, EstadoMissa, Slide } from "../missa/tipos";
+import { LARGURA, layoutDoSlide, type CampoEditavel } from "../missa/layout";
+import type { ContextoMissa, EstadoMissa, EstiloCaixa, Slide, Trecho } from "../missa/tipos";
 import "./MissaEditorView.css";
 
 interface Props {
@@ -26,6 +27,8 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
   const [status, setStatus] = useState<StatusSalvar>("salvo");
   const [selecionado, setSelecionado] = useState<string>("capa");
   const [exportando, setExportando] = useState<string | null>(null);
+  const [caixaSel, setCaixaSel] = useState<string | null>(null);
+  const [grupoAberto, setGrupoAberto] = useState("palavra");
 
   // Carrega a missa salva + liturgia do dia
   useEffect(() => {
@@ -73,6 +76,9 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
   const indice = Math.max(0, slides.findIndex((s) => s.id === selecionado));
   const atual: Slide | undefined = slides[indice];
 
+  // Trocar de slide desfaz a seleção de caixa
+  useEffect(() => setCaixaSel(null), [atual?.id]);
+
   const irPara = useCallback(
     (secaoId: string) => {
       const s = slides.find((x) => x.secao === secaoId && x.tipo !== "branco");
@@ -118,26 +124,50 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
     return () => obs.disconnect();
   }, [ctx]);
 
-  const editar = (campo: CampoEditavel, valor: string) => {
+  /** Atualiza as edições do slide atual (texto e estilos por caixa) */
+  const editarSlide = (f: (ed: EstadoMissa["edicoes"][string]) => EstadoMissa["edicoes"][string]) => {
+    if (!atual) return;
+    const id = atual.id;
+    alterar((e) => ({ ...e, edicoes: { ...e.edicoes, [id]: f(e.edicoes[id] ?? {}) } }));
+  };
+
+  const editarTexto = (campo: CampoEditavel, texto: string, trechos: Trecho[] | null) => {
     if (!atual) return;
     const extra = estado?.extras.find((x) => x.id === atual.id);
     if (extra && (campo === "titulo" || campo === "texto")) {
-      alterar((e) => ({ ...e, extras: e.extras.map((x) => (x.id === extra.id ? { ...x, [campo]: valor } : x)) }));
-      return;
+      alterar((e) => ({ ...e, extras: e.extras.map((x) => (x.id === extra.id ? { ...x, [campo]: texto } : x)) }));
+    } else {
+      editarSlide((ed) => ({ ...ed, [campo]: texto }));
     }
-    alterar((e) => ({ ...e, edicoes: { ...e.edicoes, [atual.id]: { ...e.edicoes[atual.id], [campo]: valor } } }));
+    editarSlide((ed) => {
+      const estilos = { ...ed.estilos };
+      const atualCampo = { ...estilos[campo] };
+      if (trechos) atualCampo.trechos = trechos;
+      else delete atualCampo.trechos;
+      if (Object.keys(atualCampo).length) estilos[campo] = atualCampo;
+      else delete estilos[campo];
+      return { ...ed, estilos };
+    });
   };
 
-  const mudarEscala = (delta: number) => {
-    if (!atual) return;
-    alterar((e) => {
-      const escala = Math.min(1.6, Math.max(0.5, Math.round(((e.edicoes[atual.id]?.escala ?? 1) + delta) * 10) / 10));
-      return { ...e, edicoes: { ...e.edicoes, [atual.id]: { ...e.edicoes[atual.id], escala } } };
+  const mudarEstilo = (chave: string, patch: EstiloCaixa) =>
+    editarSlide((ed) => ({ ...ed, estilos: { ...ed.estilos, [chave]: { ...ed.estilos?.[chave], ...patch } } }));
+
+  const restaurarCaixa = (chave: string) =>
+    editarSlide((ed) => {
+      const estilos = { ...ed.estilos };
+      delete estilos[chave];
+      return { ...ed, estilos };
     });
+
+  const selecionarCaixa = (chave: string | null) => {
+    setCaixaSel(chave);
+    if (chave && atual) setGrupoAberto(grupoDaSecao(atual.secao));
   };
 
   const restaurar = () => {
     if (!atual) return;
+    setCaixaSel(null);
     alterar((e) => {
       const edicoes = { ...e.edicoes };
       delete edicoes[atual.id];
@@ -179,6 +209,17 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
   if (!ctx || !estado) return <div className="missa-editor__vazio">Montando os slides…</div>;
 
   const paleta = PALETAS[ctx.cor];
+  const caixasAtual = atual ? layoutDoSlide(atual, ctx.cor, ctx.paroquiaId) : [];
+  const caixa = caixasAtual.find((c) => c.chave === caixaSel);
+  const estiloSel = caixa && atual ? atual.estilos?.[caixa.chave] : undefined;
+  const pxPol = larguraPalco / LARGURA;
+  // Barra flutuante acima da caixa (ou abaixo, se não houver espaço)
+  const posBarra = caixa
+    ? {
+        left: Math.max(0, Math.min(caixa.x * pxPol, larguraPalco - 470)),
+        top: caixa.y * pxPol > 52 ? caixa.y * pxPol - 50 : (caixa.y + caixa.h) * pxPol + 8,
+      }
+    : null;
   const editado = atual ? Boolean(estado.edicoes[atual.id]) : false;
   const textoStatus = { salvo: "✓ Salvo", pendente: "Alterações pendentes", salvando: "Salvando…", erro: "⚠ Erro ao salvar" }[status];
 
@@ -251,8 +292,22 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
                   paroquiaId={ctx.paroquiaId}
                   largura={larguraPalco}
                   editavel
-                  onEditar={editar}
+                  selecionada={caixaSel}
+                  onSelecionar={selecionarCaixa}
+                  onEstilo={mudarEstilo}
+                  onTexto={editarTexto}
                 />
+                {caixa && posBarra && (
+                  <div style={{ position: "absolute", ...posBarra }}>
+                    <FerramentasCaixa
+                      caixa={caixa}
+                      estilo={estiloSel}
+                      onEstilo={(p) => mudarEstilo(caixa.chave, p)}
+                      onRestaurar={() => restaurarCaixa(caixa.chave)}
+                      variante="flutuante"
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -275,17 +330,6 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
                 </button>
               </div>
               <div className="missa-editor__acoes">
-                {atual.tipo !== "branco" && atual.tipo !== "imagem" && (
-                  <div className="missa-editor__fonte" role="group" aria-label="Tamanho do texto">
-                    <button type="button" onClick={() => mudarEscala(-0.1)} title="Diminuir texto">
-                      A−
-                    </button>
-                    <span>{Math.round((estado.edicoes[atual.id]?.escala ?? 1) * 100)}%</span>
-                    <button type="button" onClick={() => mudarEscala(0.1)} title="Aumentar texto">
-                      A+
-                    </button>
-                  </div>
-                )}
                 {editado && (
                   <button type="button" className="ghost" onClick={restaurar} title="Desfaz as edições manuais deste slide">
                     ↺ Voltar ao automático
@@ -295,13 +339,34 @@ export function MissaEditorView({ paroquia, celebracaoId, onVoltar }: Props) {
                   Ocultar slide
                 </button>
               </div>
-              <p className="missa-editor__dica">Clique em um texto do slide para editar · ← → navega entre os slides</p>
+              <p className="missa-editor__dica">
+                Clique numa caixa para selecionar · arraste ✥ para mover e as alças para redimensionar · clique no texto para editar · ← → troca de slide
+              </p>
             </div>
           )}
         </main>
 
         <aside className="missa-editor__ajustes" aria-label="Ajustes da missa">
-          <PainelAjustes ctx={ctx} estado={estado} secoes={secoes} alterar={alterar} onIrPara={irPara} />
+          <PainelAjustes
+            ctx={ctx}
+            estado={estado}
+            secoes={secoes}
+            alterar={alterar}
+            onIrPara={irPara}
+            aberto={grupoAberto}
+            onAbrir={setGrupoAberto}
+            elemento={
+              caixa ? (
+                <FerramentasCaixa
+                  caixa={caixa}
+                  estilo={estiloSel}
+                  onEstilo={(p) => mudarEstilo(caixa.chave, p)}
+                  onRestaurar={() => restaurarCaixa(caixa.chave)}
+                  variante="painel"
+                />
+              ) : undefined
+            }
+          />
         </aside>
       </div>
     </div>
